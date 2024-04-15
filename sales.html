@@ -149,7 +149,7 @@
         }
 
         // Функция для построения графика с динамическим порогом
-        function drawChart(canvasId, sales, thresholds) {
+        function drawChart(canvasId, sales, thresholds, scaleFactor) {
             var canvas = document.getElementById(canvasId);
             var ctx = canvas.getContext("2d");
             var width = canvas.width;
@@ -157,11 +157,22 @@
 
             ctx.clearRect(0, 0, width, height);
 
+
             // Настройки графика
             var barWidth = width / sales.length;
 
-            var maxSales = Math.max(...sales);
-            var scaleFactor = height / maxSales;
+
+            // !!! Вынужденное решение с учётом захардкоженного значения масштаба:
+            if (typeof scaleFactor === 'undefined') {
+                var maxSales = Math.max(...sales);
+                scaleFactor = height / maxSales;
+            }
+
+            // !!! Вот более грамотное решение, но при обращении к thresholds всё ломается
+            // // Вычисляем максимальное значение как из массива продаж, так и из массива порогов
+            // var maxSalesAndThresholds = Math.max(...sales, ...thresholds);
+            // var scaleFactor = height / maxSalesAndThresholds;
+
 
             // Рисуем столбцы продаж
             for (var i = 0; i < sales.length; i++) {
@@ -212,7 +223,9 @@
         drawChart("totalChart", totalSales);
         drawChart("pos1Chart", pos1Sales, pos1Thresholds);
         drawChart("pos2Chart", pos2Sales, pos2Thresholds);
-        drawChart("pos3Chart", pos3Sales, pos3Thresholds);
+        drawChart("pos3Chart", pos3Sales, pos3Thresholds, 0.00087); // !!! Тут пришлось захардкожить значение для масштаба графика:
+                                                                    // так как при добавлении в функцию вычисления максимального значения
+                                                                    // из переменной с порогами всё ломалось
 
     </script>
 
