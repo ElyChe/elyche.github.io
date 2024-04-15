@@ -161,12 +161,7 @@
             var barWidth = width / sales.length;
 
             var maxSales = Math.max(...sales);
-            // var maxThresholds = Math.max(...thresholds);
             var scaleFactor = height / maxSales;
-
-            // // Вычисляем максимальное значение как из массива продаж, так и из массива порогов
-            // var maxSalesAndThresholds = Math.max(...sales, ...thresholds);
-            // var scaleFactor = height / maxSalesAndThresholds;
 
             // Рисуем столбцы продаж
             for (var i = 0; i < sales.length; i++) {
