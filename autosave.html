@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прототип автосохранения</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+
+        :root {
+            --bs-primary: #17a2b8; /* Бирюзовый вместо синего для primary */
+            --bs-danger: #fd7e14; /* Оранжевый вместо красного для danger */
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            font-size: 24px;
+            text-align: left;
+            padding-top: 50px;
+            line-height: 1.3;
+        }
+
+        h2 {
+            font-size: 36px;
+        }
+
+        .input-container {
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 24px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .saved-data {
+            margin-top: 10px;
+            text-align: left;
+            line-height: 1.2;
+            color: grey;
+        }
+
+        .saved-data:not(:empty) {
+            color: white;
+        }
+
+        .spinner-border {
+            vertical-align: top;
+            display: none;
+            color: #17a2b8;
+            width: 1.2em;
+            height: 1.2em;
+            border-width: 0.1em;
+        }
+
+        .nunito-sans-text {
+            font-family: "Nunito Sans", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 500;
+            font-style: normal;
+            font-variation-settings:
+            "wdth" 100,
+            "YTLC" 500;
+        }
+
+        .saved-data-block-1 {
+            margin-top: 80px;
+        }
+
+        .saved-data-block-2 {
+            margin-top: 30px;
+        }
+
+        .old-data {
+            color: grey;
+        }
+
+        .new-data {
+            color: #fff;
+        }
+
+        .invalid-tooltip {
+            color: #fff;
+            background-color: #fd7e14;
+            border-color: #fd7e14;
+            width: calc(100%);
+        }
+
+        .extra-small {
+            font-size: 14px;
+        }
+    </style>
+
+</head>
+<body class="bg-dark text-light nunito-sans-text">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Прототип автосохранения</h2>
+            </div>
+            <div class="text-muted extra-small col-md-8">
+                <p>Данные из полей автоматически сохраняются: в локальном кэше — моментально, при любом изменении;<br>а в базе — по таймеру: после 3 секунд после завершения редактирования; либо моментально по нажатию Enter или выходу из поля.</p>
+                <p>При передаче в базу происходит проверка — в данном случае на наличие нециферных символов — данные не записываются при передаче недопустимых символов: выдаётся ошибка.</p>
+                <p>При работе внутри поля работает сочетание Ctrl+Z — это функционал браузера.</p>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="input-container position-relative">
+                    <label for="pointInput1">ID оборудования</label>
+                    <input type="text" id="pointInput1" placeholder="Введите значение" class="form-control mx-auto">
+                    <div class="invalid-tooltip" id="error1" style="display: none;">
+                        <strong>Данные не сохранены</strong><br>Введите номер, используя только цифры
+                    </div>
+                </div>
+                <div class="saved-data-block-1 text-muted">
+                    <h5>Данные в локальном хранилище</h5>
+                    <p id="savedDataLocalStorage1" class="saved-data">пусто</p>
+                </div>
+                <div class="saved-data-block-2 text-muted">
+                    <h5>Данные, принятые сервером
+                        <div id="spinner1" class="spinner-border ml-2" role="status"></div>
+                    </h5>
+                    <p id="savedDataDatabase1" class="saved-data">пусто</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-container position-relative">
+                    <label for="pointInput2">Серийный номер</label>
+                    <input type="text" id="pointInput2" placeholder="Введите значение" class="form-control mx-auto">
+                    <div class="invalid-tooltip" id="error2" style="display: none;">
+                        <strong>Данные не сохранены</strong><br>Введите номер, используя только цифры
+                    </div>
+                </div>
+                <div class="saved-data-block-1 text-muted">
+                    <h5>Данные в локальном хранилище</h5>
+                    <p id="savedDataLocalStorage2" class="saved-data">пусто</p>
+                </div>
+                <div class="saved-data-block-2 text-muted">
+                    <h5>Данные, принятые сервером
+                        <div id="spinner2" class="spinner-border ml-2" role="status"></div>
+                    </h5>
+                    <p id="savedDataDatabase2" class="saved-data">пусто</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-container position-relative">
+                    <label for="pointInput3">Инвентарный номер</label>
+                    <input type="text" id="pointInput3" placeholder="Введите значение" class="form-control mx-auto">
+                    <div class="invalid-tooltip" id="error3" style="display: none;">
+                        <strong>Данные не сохранены</strong><br>Введите номер, используя только цифры
+                    </div>
+                </div>
+                <div class="saved-data-block-1 text-muted">
+                    <h5>Данные в локальном хранилище</h5>
+                    <p id="savedDataLocalStorage3" class="saved-data">пусто</p>
+                </div>
+                <div class="saved-data-block-2 text-muted">
+                    <h5>Данные, принятые сервером
+                        <div id="spinner3" class="spinner-border ml-2" role="status"></div>
+                    </h5>
+                    <p id="savedDataDatabase3" class="saved-data">пусто</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function setupAutosave(inputId, errorId, localStorageKey, savedDataLocalId, savedDataDbId, spinnerId) {
+            let saveTimer;
+            let lastSavedData = "";
+
+            document.getElementById(inputId).addEventListener('input', function(event) {
+                clearTimeout(saveTimer);
+                hideError(inputId, errorId);
+
+                const pointCoordinates = event.target.value;
+                localStorage.setItem(localStorageKey, pointCoordinates);
+                document.getElementById(savedDataLocalId).innerText = pointCoordinates || "пусто";
+                document.getElementById(spinnerId).style.display = 'inline-block';
+
+                saveTimer = setTimeout(saveToDatabase, 3000);
+            });
+
+            window.onload = function() {
+                const savedPoint = localStorage.getItem(localStorageKey);
+                document.getElementById(savedDataLocalId).innerText = savedPoint || "пусто";
+            };
+
+            function saveToDatabase() {
+                const newData = localStorage.getItem(localStorageKey);
+                if (newData && newData !== lastSavedData) {
+                    if (!/^\d+$/.test(newData)) {
+                        showError(inputId, errorId);
+                        document.getElementById(spinnerId).style.display = 'none';
+                        return;
+                    }
+
+                    lastSavedData = newData;
+                    const databaseDiv = document.getElementById(savedDataDbId);
+                    const databaseData = databaseDiv.innerText.split('\n').filter(data => data.trim() !== "пусто" && data.trim() !== "");
+                    const newDataHtml = `<span class="new-data">${newData}</span>`;
+                    const oldDataHtml = databaseData.map(data => `<span class="old-data">${data}</span>`).join('<br>');
+                    databaseDiv.innerHTML = `${newDataHtml}<br>${oldDataHtml}`;
+                    console.log('Сохранение в базу данных', newData);
+                    document.getElementById(spinnerId).style.display = 'none';
+                } else {
+                    document.getElementById(spinnerId).style.display = 'none';
+                }
+            }
+
+            function showError(inputId, errorId) {
+                const inputField = document.getElementById(inputId);
+                const errorTooltip = document.getElementById(errorId);
+
+                inputField.classList.add('is-invalid');
+                errorTooltip.style.display = 'block';
+                errorTooltip.style.position = 'absolute';
+                errorTooltip.style.top = '100%';
+            }
+
+            function hideError(inputId, errorId) {
+                const inputField = document.getElementById(inputId);
+                const errorTooltip = document.getElementById(errorId);
+
+                inputField.classList.remove('is-invalid');
+                errorTooltip.style.display = 'none';
+            }
+
+            document.getElementById(inputId).addEventListener('keyup', function(event) {
+                clearTimeout(saveTimer);
+                hideError(inputId, errorId);
+
+                if (event.key === 'Enter') {
+                    saveToDatabase();
+                } else {
+                    saveTimer = setTimeout(saveToDatabase, 3000);
+                }
+            });
+
+            document.getElementById(inputId).addEventListener('focus', function(event) {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(saveToDatabase, 3000);
+            });
+
+            document.getElementById(inputId).addEventListener('blur', function() {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(saveToDatabase, 0);
+            });
+        }
+
+        setupAutosave('pointInput1', 'error1', 'pointCoordinates1', 'savedDataLocalStorage1', 'savedDataDatabase1', 'spinner1');
+        setupAutosave('pointInput2', 'error2', 'pointCoordinates2', 'savedDataLocalStorage2', 'savedDataDatabase2', 'spinner2');
+        setupAutosave('pointInput3', 'error3', 'pointCoordinates3', 'savedDataLocalStorage3', 'savedDataDatabase3', 'spinner3');
+    </script>
+</body>
+</html>
