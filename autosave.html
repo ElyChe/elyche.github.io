@@ -13,11 +13,6 @@
 
     <style>
 
-        :root {
-            --bs-primary: #17a2b8; /* Бирюзовый вместо синего для primary */
-            --bs-danger: #fd7e14; /* Оранжевый вместо красного для danger */
-        }
-
         body {
             font-family: system-ui, sans-serif;
             font-size: 24px;
@@ -178,37 +173,43 @@
     </div>
     
     <script>
+        
         function setupAutosave(inputId, errorId, localStorageKey, savedDataLocalId, savedDataDbId, spinnerId) {
             let saveTimer;
             let lastSavedData = "";
-
+        
             document.getElementById(inputId).addEventListener('input', function(event) {
                 clearTimeout(saveTimer);
                 hideError(inputId, errorId);
-
-                const pointCoordinates = event.target.value;
+        
+                let pointCoordinates = event.target.value.trim();
+                pointCoordinates = pointCoordinates === '' ? '' : pointCoordinates;
                 localStorage.setItem(localStorageKey, pointCoordinates);
                 document.getElementById(savedDataLocalId).innerText = pointCoordinates || "пусто";
                 document.getElementById(spinnerId).style.display = 'inline-block';
-
+        
                 saveTimer = setTimeout(saveToDatabase, 3000);
             });
-
+        
             window.onload = function() {
                 const savedPoint = localStorage.getItem(localStorageKey);
                 document.getElementById(savedDataLocalId).innerText = savedPoint || "пусто";
             };
-
+        
             function saveToDatabase() {
-                const newData = localStorage.getItem(localStorageKey);
-                if (newData && newData !== lastSavedData) {
-                    if (!/^\d+$/.test(newData)) {
+                let newData = localStorage.getItem(localStorageKey);
+                if (newData !== lastSavedData) {
+                    if (newData && !/^\d*$/.test(newData)) {  // Adjusted regex to allow empty strings
                         showError(inputId, errorId);
                         document.getElementById(spinnerId).style.display = 'none';
                         return;
                     }
-
+        
+                    if (newData === '') {
+                        newData = 'пусто';
+                    }
                     lastSavedData = newData;
+        
                     const databaseDiv = document.getElementById(savedDataDbId);
                     const databaseData = databaseDiv.innerText.split('\n').filter(data => data.trim() !== "пусто" && data.trim() !== "");
                     const newDataHtml = `<span class="new-data">${newData}</span>`;
@@ -220,50 +221,56 @@
                     document.getElementById(spinnerId).style.display = 'none';
                 }
             }
-
+        
             function showError(inputId, errorId) {
                 const inputField = document.getElementById(inputId);
                 const errorTooltip = document.getElementById(errorId);
-
+        
                 inputField.classList.add('is-invalid');
                 errorTooltip.style.display = 'block';
                 errorTooltip.style.position = 'absolute';
                 errorTooltip.style.top = '100%';
             }
-
+        
             function hideError(inputId, errorId) {
                 const inputField = document.getElementById(inputId);
                 const errorTooltip = document.getElementById(errorId);
-
+        
                 inputField.classList.remove('is-invalid');
                 errorTooltip.style.display = 'none';
             }
-
+        
             document.getElementById(inputId).addEventListener('keyup', function(event) {
                 clearTimeout(saveTimer);
                 hideError(inputId, errorId);
-
+        
                 if (event.key === 'Enter') {
                     saveToDatabase();
                 } else {
                     saveTimer = setTimeout(saveToDatabase, 3000);
                 }
             });
-
+        
             document.getElementById(inputId).addEventListener('focus', function(event) {
                 clearTimeout(saveTimer);
                 saveTimer = setTimeout(saveToDatabase, 3000);
             });
-
+        
             document.getElementById(inputId).addEventListener('blur', function() {
                 clearTimeout(saveTimer);
+                let pointCoordinates = document.getElementById(inputId).value.trim();
+                document.getElementById(inputId).value = pointCoordinates;
+                pointCoordinates = pointCoordinates === '' ? '' : pointCoordinates;
+                localStorage.setItem(localStorageKey, pointCoordinates);
+                document.getElementById(savedDataLocalId).innerText = pointCoordinates || "пусто";
                 saveTimer = setTimeout(saveToDatabase, 0);
             });
         }
-
+        
         setupAutosave('pointInput1', 'error1', 'pointCoordinates1', 'savedDataLocalStorage1', 'savedDataDatabase1', 'spinner1');
         setupAutosave('pointInput2', 'error2', 'pointCoordinates2', 'savedDataLocalStorage2', 'savedDataDatabase2', 'spinner2');
         setupAutosave('pointInput3', 'error3', 'pointCoordinates3', 'savedDataLocalStorage3', 'savedDataDatabase3', 'spinner3');
+
     </script>
 </body>
 </html>
