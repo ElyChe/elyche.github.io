@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Служба поддержки</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            text-align: center;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+            margin-top: 16px;
+        }
+        .checkbox-container input {
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+        .checkbox-container span {
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold mb-6">Безусловно&nbsp;лучший интерфейс службы поддержки</h1>
+        <button class="bg-blue-600 text-white text-lg font-semibold py-3 px-6 rounded-xl hover:bg-blue-700 transition w-full mb-6">
+            Соединить с&nbsp;живым человеком, имеющим доступ к&nbsp;изменениям в&nbsp;клиентской базе данных
+        </button>
+        <div class="text-left">
+            <label class="checkbox-container">
+                <input type="checkbox" checked>
+                <span>
+                    Соглашаюсь на&nbsp;пропуск информации об&nbsp;акциях и&nbsp;уникальных предложениях, общения с&nbsp;ботом, ответов по&nbsp;скриптам, а&nbsp;также извинений и&nbsp;благодарностей.
+                </span>
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" checked>
+                <span>
+                    Подтверждаю, что я&nbsp;неоднократно пробовал, но&nbsp;у&nbsp;меня так и&nbsp;не&nbsp;получилось решить мой вопрос ни&nbsp;в&nbsp;интерфейсе приложения, ни&nbsp;на&nbsp;сайте компании, а&nbsp;то, что описано в&nbsp;специальных разделах сайта&nbsp;— таких как «Помощь», «Служба поддержки» и&nbsp;«Ответы на&nbsp;вопросы»&nbsp;— мне никак не&nbsp;помогло.
+                </span>
+            </label>
+        </div>
+    </div>
+</body>
+</html>
