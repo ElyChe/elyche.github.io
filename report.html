@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>xDSL — краткий отчёт по линиям</title>
+    <meta name="description" content="Краткий отчёт по состоянию xDSL линий (SNR, sync, attainable, attenuation) с рекомендациями." />
+
+    <!-- Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root{
+        --bg: #0b1220;
+        --panel: rgba(255,255,255,.06);
+        --panel-2: rgba(255,255,255,.04);
+        --border: rgba(255,255,255,.12);
+        --text: rgba(255,255,255,.90);
+        --muted: rgba(255,255,255,.65);
+        --muted-2: rgba(255,255,255,.55);
+        --shadow: 0 18px 45px rgba(0,0,0,.35);
+
+        --ok: #22c55e;
+        --normal: #06b6d4;
+        --warn: #f59e0b;
+        --bad: #ef4444;
+        --note: #60a5fa;
+      }
+
+      *{ box-sizing: border-box; }
+      html, body{ height: 100%; }
+      body{
+        margin: 0;
+        font-family: "Nunito Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.45;
+        position: relative;
+        overflow-x: hidden;
+        font-size: 16px;
+      }
+
+      /* Fixed background (does not move on scroll) */
+      body::before{
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+          radial-gradient(1000px 600px at 20% 10%, rgba(96,165,250,.18), transparent 60%),
+          radial-gradient(900px 600px at 70% 0%, rgba(34,197,94,.12), transparent 55%),
+          radial-gradient(900px 600px at 70% 90%, rgba(245,158,11,.10), transparent 55%),
+          var(--bg);
+      }
+
+      a{ color: inherit; }
+      .wrap{
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 28px 18px 44px;
+      }
+
+      header{
+        display: grid;
+        gap: 12px;
+        padding: 22px 20px;
+        background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .title{
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      h1{
+        margin: 0;
+        font-size: 26px;
+        letter-spacing: -0.02em;
+      }
+      .subtitle{
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .dot{
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.35);
+        box-shadow: none;
+      }
+      .dot.ok{ background: var(--ok); }
+      .dot.normal{ background: var(--normal); }
+      .dot.warn{ background: var(--warn); }
+      .dot.bad{ background: var(--bad); }
+      .dot.note{ background: var(--note); }
+
+      .dot.fileDot{ width: 9px; height: 9px; }
+
+      .grid{
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+      }
+
+      .card{
+        grid-column: span 12;
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0,0,0,.22);
+        overflow: clip;
+      }
+
+      .cardHead{
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px 10px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+        background: rgba(255,255,255,.03);
+      }
+
+      .cardTitle{
+        display: grid;
+        gap: 4px;
+      }
+      .file{
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .lineName{
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0;
+        letter-spacing: 0.01em;
+      }
+      .namePrefix{
+        font-weight: 400;
+        color: rgba(255,255,255,.78);
+      }
+      .nameSuffix{
+        font-weight: 700;
+        color: rgba(255,255,255,.92);
+        letter-spacing: 0.04em;
+      }
+
+      .status{
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .statusText{
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.10em;
+        font-size: 14px;
+        color: rgba(255,255,255,.82);
+      }
+      .statusText.ok{ color: var(--ok); }
+      .statusText.normal{ color: var(--normal); }
+      .statusText.warn{ color: var(--warn); }
+      .statusText.bad{ color: var(--bad); }
+
+      .badge{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(255,255,255,.05);
+        color: rgba(255,255,255,.82);
+        font-size: 14px;
+        white-space: nowrap;
+      }
+
+      .content{
+        padding: 12px 16px 16px;
+      }
+
+      table{
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 14px;
+        background: rgba(255,255,255,.03);
+        border: 1px solid rgba(255,255,255,.10);
+      }
+      th, td{
+        text-align: left;
+        padding: 10px 12px;
+        vertical-align: top;
+      }
+      th{
+        width: 210px;
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 13px;
+        background: rgba(255,255,255,.03);
+        border-right: 1px solid rgba(255,255,255,.08);
+      }
+      td{
+        color: rgba(255,255,255,.88);
+        font-size: 14px;
+      }
+      tr + tr th,
+      tr + tr td{
+        border-top: 1px solid rgba(255,255,255,.08);
+      }
+
+      .warnText{
+        color: rgba(255,255,255,.88);
+      }
+      .warnMark{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: rgba(245,158,11,.12);
+        border: 1px solid rgba(245,158,11,.22);
+        color: rgba(255,255,255,.92);
+        font-size: 13px;
+        line-height: 1.7;
+        margin-right: 0;
+      }
+      .warnRow th,
+      .warnRow td{
+        color: var(--warn);
+      }
+      .warnRow td strong{
+        color: var(--warn);
+      }
+      .warnRow .warnText{
+        color: inherit;
+      }
+      .iconCell{
+        width: 42px;
+        text-align: left;
+        vertical-align: top;
+        padding-left: 12px;
+        padding-right: 0px;
+      }
+      .emptyHead{
+        color: transparent;
+      }
+
+      .foot{
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.10);
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .foot ul{
+        margin: 10px 0 0;
+        padding-left: 18px;
+      }
+      .foot li{ margin: 6px 0; }
+
+      @media (min-width: 860px){
+        .card{ grid-column: span 6; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="title">
+          <h1>xDSL — краткий отчёт по линиям</h1>
+        </div>
+        <p class="subtitle" style="margin-top: -2px;">
+          В отчёте нет счётчиков ошибок (CRC/FEC/ES/SES/LOS), поэтому ниже&nbsp;— оценка текущей «физики» (SNR/затухание/скорости) и&nbsp;что запросить для&nbsp;точной диагностики.
+        </p>
+      </header>
+
+      <main class="grid">
+        <!-- 13050540 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050540">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">540</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot ok" aria-hidden="true"></span><span class="statusText ok">Отлично</span></div>
+            </div>
+            <div class="badge">VDSL2 (Annex B)</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>51.2 / 10.24 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>92.9 / 47.5 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>20.0 / 28.6 dB</td></tr>
+              <tr><th>Attn (Down/Up)</th><td class="iconCell"></td><td>9.3 / 16.9 dB</td></tr>
+              <tr><th>Наблюдение</th><td class="iconCell"></td><td>Up заметно ниже attainable → вероятно ограничение профилем/тарифом.</td></tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>При&nbsp;запросе «больше Up»&nbsp;— сверить тариф/профиль, наличие vectoring/G.INP.</td></tr>
+              <tr><th>Что ещё запросить</th><td class="iconCell"></td><td>Опционально: CRC/FEC, ES/SES, LOS/LOF, retrain count, uptime за 24–72ч.</td></tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Профиль/тариф ограничивает Up: Sync 10.24 при&nbsp;attainable 47.5 и&nbsp;высоком SNR; при&nbsp;низких CRC/ES линия физически отличная.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050520 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050520">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">520</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot ok" aria-hidden="true"></span><span class="statusText ok">Очень хорошо</span></div>
+            </div>
+            <div class="badge">VDSL2 (Annex B)</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>35.9 / 15.0 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>56.1 / 20.8 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>25.8 / 15.9 dB</td></tr>
+              <tr><th>Attn (Down/Up)</th><td class="iconCell"></td><td>17.0 / 32.7 dB</td></tr>
+              <tr><th>Наблюдение</th><td class="iconCell"></td><td>Большой запас SNR; Up=15 выглядит как профильный лимит.</td></tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>При&nbsp;жалобах на&nbsp;скорость&nbsp;— сверить профиль/лимиты; иначе без&nbsp;действий.</td></tr>
+              <tr><th>Что ещё запросить</th><td class="iconCell"></td><td>Опционально: CRC/FEC, ES/SES, LOS/LOF, retrain count, uptime за 24–72ч.</td></tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Тарифный лимит: Up ровно 15 при&nbsp;attainable 20.8 и&nbsp;высоком SNR; при&nbsp;малых ошибках линия стабильная.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050453 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050453">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">453</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot ok" aria-hidden="true"></span><span class="statusText ok">Хорошо (capped)</span></div>
+            </div>
+            <div class="badge">VDSL2 17a</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>30.1 / 10.05 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>60.0 / 19.45 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>21.0 / 18.2 dB</td></tr>
+              <tr><th>Attn (Down/Up)</th><td class="iconCell"></td><td>19.2 / 34.3 dB</td></tr>
+              <tr><th>Наблюдение</th><td class="iconCell"></td><td>Большой запас SNR при&nbsp;умеренном sync → вероятен лимит профиля ~30/10.</td></tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>Если&nbsp;«хочется быстрее»&nbsp;— начать с&nbsp;тарифа/профиля, а&nbsp;не ремонта линии.</td></tr>
+              <tr><th>Что ещё запросить</th><td class="iconCell"></td><td>Опционально: CRC/FEC, ES/SES, LOS/LOF, retrain count, uptime за 24–72ч.</td></tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Профиль 30/10: attainable 60/19 при&nbsp;SNR 21/18; если&nbsp;ошибок нет&nbsp;— линия способна на&nbsp;больше.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050404 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050404">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">404</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot normal" aria-hidden="true"></span><span class="statusText normal">Хорошо</span></div>
+            </div>
+            <div class="badge">VDSL2 (17A)</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>30.716 / 10.236 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>39.325 / 12.229 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>12.3 / 12.2 dB</td></tr>
+              <tr class="warnRow"><th>Attn (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>нет данных (пустые поля)</td></tr>
+              <tr class="warnRow">
+                <th>Наблюдение</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Включён интерливинг (delay 16/6)&nbsp;— возможен DLM/ошибки, но&nbsp;счётчиков нет.</td>
+              </tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>Если&nbsp;критична задержка&nbsp;— обсудить профиль (fastpath/G.INP) с&nbsp;провайдером.</td></tr>
+              <tr>
+                <th>Что ещё запросить</th>
+                <td class="iconCell"></td>
+                <td><strong>Нужно:</strong> CRC/FEC, ES/SES, LOS/LOF, G.INP/INP, interleave depth/delay, retrain count, uptime.</td>
+              </tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>DLM включил интерливинг из‑за ошибок: ожидаем повышенные CRC/ES и&nbsp;срывы SNR; при&nbsp;их отсутствии&nbsp;— просто «осторожный» профиль.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050485 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050485">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">485</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot warn" aria-hidden="true"></span><span class="statusText warn">Риск</span></div>
+            </div>
+            <div class="badge">VDSL2 (Annex B)</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>40.811 / 10.477 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>44.396 / 7.328 Mbps</td></tr>
+              <tr class="warnRow"><th>SNR (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>13.4 / <span class="warnText"><strong>9.7</strong></span> dB</td></tr>
+              <tr><th>Attn (Down/Up)</th><td class="iconCell"></td><td>14.3 / 30.4 dB</td></tr>
+              <tr class="warnRow">
+                <th>Наблюдение</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Up SNR 9.7 dB&nbsp;— ближе к&nbsp;минимуму; Up будет первым страдать от&nbsp;помех.</td>
+              </tr>
+              <tr class="warnRow">
+                <th class="emptyHead">&nbsp;</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Attainable Up ниже Sync (несостыковка источника).</td>
+              </tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>Проверить домашнюю разводку (короткий ввод, без&nbsp;«тройников/скруток», нормальные фильтры/сплиттер).</td></tr>
+              <tr>
+                <th>Что ещё запросить</th>
+                <td class="iconCell"></td>
+                <td><strong>Нужно:</strong> CRC/FEC (особенно Up), ES/SES, retrain count, SRA/bit-swap, G.INP/INP.</td>
+              </tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Помехи по&nbsp;аплинку: SNR Up 9.7 dB и&nbsp;риск ошибок; при&nbsp;росте CRC Up/ES будут просадки и&nbsp;ретрейны.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050468 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050468">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">468</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot normal" aria-hidden="true"></span><span class="statusText normal">Хорошо</span></div>
+            </div>
+            <div class="badge">VDSL2 (Annex B)</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>34.432 / 8.951 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>39.316 / 9.045 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>14.0 / 11.4 dB</td></tr>
+              <tr><th>Attn (Down/Up)</th><td class="iconCell"></td><td>19.0 / 39.2 dB</td></tr>
+              <tr><th>Наблюдение</th><td class="iconCell"></td><td>Up почти равен attainable → небольшой запас по&nbsp;аплинку.</td></tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>При&nbsp;обрывах/просадках&nbsp;— проверить домашнюю пару/контакты, затем&nbsp;— линию у&nbsp;провайдера.</td></tr>
+              <tr><th>Что ещё запросить</th><td class="iconCell"></td><td>Опционально (при&nbsp;жалобах): CRC/FEC, ES/SES, retrain count, uptime.</td></tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Аплинк на&nbsp;пределе: attainable≈sync по&nbsp;Up; при&nbsp;снижении SNR Up или&nbsp;росте ES ожидаем падение скорости.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050410 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050410">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">410</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot normal" aria-hidden="true"></span><span class="statusText normal">Слабая</span></div>
+            </div>
+            <div class="badge">VDSL2 (17a)</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>10.483 / 3.569 Mbps</td></tr>
+              <tr class="warnRow"><th>Attainable (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>9.554 / 3.601 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>11.4 / 12.0 dB</td></tr>
+              <tr class="warnRow"><th>Attn (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>31.0 / 37.4 dB</td></tr>
+              <tr class="warnRow">
+                <th>Наблюдение</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Высокое затухание + низкие скорости → длинный участок/деградация меди/плохая домашняя разводка.</td>
+              </tr>
+              <tr class="warnRow">
+                <th class="emptyHead">&nbsp;</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Sync Down &gt; Attainable Down (несостыковка источника).</td>
+              </tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>Упростить домашнюю линию до&nbsp;модема (одна пара без&nbsp;ответвлений), проверить розетку/контакты/кабель. Провайдеру&nbsp;— проверка пары/кросса/порта, возможная смена пары.</td></tr>
+              <tr>
+                <th>Что ещё запросить</th>
+                <td class="iconCell"></td>
+                <td><strong>Нужно:</strong> CRC/FEC, ES/SES, retrain count, LOS/LOF, график SNR по&nbsp;времени, измерения пары (изоляция/сопротивление/ёмкость).</td>
+              </tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Длинный/слабый участок или&nbsp;плохая медь: высокое затухание 31/37 dB и&nbsp;низкий sync; улучшение будет при&nbsp;исправлении пары/домовой разводки.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050583 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050583">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">583</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot normal" aria-hidden="true"></span><span class="statusText normal">Неполные данные</span></div>
+            </div>
+            <div class="badge">⚠️ «etsi»</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>36.391 / 18.032 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>42.616 / 19.237 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>12.9 / 12.8 dB</td></tr>
+              <tr class="warnRow"><th>Attn (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>0 / 0 (скорее «нет данных»)</td></tr>
+              <tr class="warnRow"><th>Наблюдение</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>Часть полей невалидна/не отдана устройством → риск неверных выводов по&nbsp;«длине» линии.</td></tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>Переснять полный DSL-статус из&nbsp;CPE и/или поправить источник/парсер.</td></tr>
+              <tr><th>Что ещё запросить</th><td class="iconCell"></td><td><strong>Нужно:</strong> корректные Attn/Power/профиль (Annex, bandplan), CRC/FEC, ES/SES, LOS/LOF, uptime.</td></tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Часть данных не отдана (Attn=0, mode «etsi»): вероятна ошибка источника; при&nbsp;нормальных CRC/ES линия может быть исправной.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050585 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050585">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">585</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot warn" aria-hidden="true"></span><span class="statusText warn">Требует проверки</span></div>
+            </div>
+            <div class="badge">⚠️ режим неясен</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr><th>Sync (Down/Up)</th><td class="iconCell"></td><td>12.284 / 0.632 Mbps</td></tr>
+              <tr><th>Attainable (Down/Up)</th><td class="iconCell"></td><td>24.264 / 1.039 Mbps</td></tr>
+              <tr><th>SNR (Down/Up)</th><td class="iconCell"></td><td>12.8 / 23.4 dB</td></tr>
+              <tr class="warnRow"><th>Attn (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>нет данных (пустые поля)</td></tr>
+              <tr class="warnRow">
+                <th>Наблюдение</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Очень низкий Up при&nbsp;высоком Up SNR → вероятнее профильное ограничение/неверный режим/неполные данные.</td>
+              </tr>
+              <tr><th>Рекомендации</th><td class="iconCell"></td><td>Уточнить фактический стандарт (ADSL/VDSL), тариф/профиль; повторить замер.</td></tr>
+              <tr><th>Что ещё запросить</th><td class="iconCell"></td><td><strong>Нужно:</strong> точный OperationalMode, профиль (Annex, PSD/bandplan), корректные Attn, CRC/FEC, ES/SES, retrain count, uptime.</td></tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Профиль/режим ограничивает Up: высокий Up SNR 23.4 при&nbsp;низком sync 0.63; при&nbsp;нулевых ошибках это не&nbsp;физическая авария.</td></tr>
+            </table>
+          </div>
+        </section>
+
+        <!-- 13050550 -->
+        <section class="card">
+          <div class="cardHead">
+            <div class="cardTitle">
+              <div class="file">
+                <span class="lineName" aria-label="Линия 13050550">
+                  <span class="namePrefix">13050</span><span class="nameSuffix">550</span>
+                </span>
+              </div>
+              <div class="status"><span class="dot bad" aria-hidden="true"></span><span class="statusText bad">Плохо</span></div>
+            </div>
+            <div class="badge">ADSL2+ (G.992.5-Annex A)</div>
+          </div>
+          <div class="content">
+            <table>
+              <tr class="warnRow"><th>Sync (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>7.360 / <strong>0.093</strong> Mbps</td></tr>
+              <tr class="warnRow"><th>Attainable (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>8.655 / 0.085 Mbps</td></tr>
+              <tr class="warnRow"><th>SNR (Down/Up)</th><td class="iconCell"><span class="warnMark">⚠️</span></td><td>10.0 / 9.9 dB</td></tr>
+              <tr><th>Attn (Down/Up)</th><td class="iconCell"></td><td>28.8 / 37.6 dB</td></tr>
+              <tr class="warnRow">
+                <th>Наблюдение</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Аплинк практически отсутствует; высокая вероятность проблемы линии/домовой части.</td>
+              </tr>
+              <tr class="warnRow">
+                <th class="emptyHead">&nbsp;</th>
+                <td class="iconCell"><span class="warnMark">⚠️</span></td>
+                <td>Attainable Up &lt; Sync Up (несостыковка источника).</td>
+              </tr>
+              <tr>
+                <th>Рекомендации</th>
+                <td class="iconCell"></td>
+                <td>
+                  Срочно исключить домашние причины: сплиттер обязателен, убрать параллельные телефоны/удлинители/скрутки, проверить ввод/контакты.
+                  Затем&nbsp;провайдеру: поиск плохого контакта/окисления/влаги, смена пары/кросса, проверка порта; при&nbsp;возможности&nbsp;— миграция на&nbsp;VDSL/FTTx.
+                </td>
+              </tr>
+              <tr>
+                <th>Что ещё запросить</th>
+                <td class="iconCell"></td>
+                <td><strong>Нужно:</strong> CRC/FEC, ES/SES, LOS/LOF, retrain count, измерения пары (изоляция/сопротивление/ёмкость), сведения о профиле/DLM.</td>
+              </tr>
+              <tr><th>Что может быть</th><td class="iconCell"></td><td>Деградация пары/контактов: Up 0.093 и&nbsp;высокий Attn 37.6; при&nbsp;росте CRC/ES и&nbsp;ретрейнов нужна проверка линии и&nbsp;смена пары.</td></tr>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <aside class="foot">
+        <strong>Минимальный набор для&nbsp;точной диагностики</strong>
+        <ul>
+          <li>Счётчики ошибок и&nbsp;событий: <strong>CRC/FEC, ES/SES, LOS/LOF, retrain count, uptime</strong> (желательно за&nbsp;24–72&nbsp;часа).</li>
+          <li>Параметры защиты/профиля: <strong>G.INP/INP</strong>, interleave depth/delay, <strong>SRA/bit-swap</strong>, vectoring (если&nbsp;доступно).</li>
+          <li>Домашняя часть: один прямой ввод до&nbsp;модема, без&nbsp;ответвлений; корректный сплиттер/фильтры (особенно для&nbsp;ADSL/телефонии).</li>
+        </ul>
+      </aside>
+    </div>
+  </body>
+</html>
