@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Презентация: Техноград Диагностика</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1220;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --accent-color: #06b6d4; /* Turquoise from gradient end */
+            --text-color: #cffafe; /* Cyan 100 - very light turquoise */
+            --muted-color: #94a3b8; /* Slate 400 - grey with a hint of blue/cyan */
+            --border-color: rgba(255, 255, 255, 0.1);
+            --slide-aspect-ratio: 56.25%; /* 16:9 */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Nunito Sans", sans-serif;
+            background-color: #050810;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slide-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            min-width: 400px;
+            padding: 0 20px;
+            box-sizing: border-box;
+            margin-bottom: 4vw; 
+        }
+
+        .slide-wrapper:first-of-type { margin-top: 8vw; }
+        .slide-wrapper:last-of-type { margin-bottom: 8vw; }
+
+        @media (min-width: 1200px) {
+            .slide-wrapper { margin-bottom: 40px; }
+            .slide-wrapper:first-of-type { margin-top: 80px; }
+            .slide-wrapper:last-of-type { margin-bottom: 80px; }
+        }
+        @media (max-width: 400px) {
+            .slide-wrapper { margin-bottom: 16px; }
+            .slide-wrapper:first-of-type { margin-top: 32px; }
+            .slide-wrapper:last-of-type { margin-bottom: 32px; }
+        }
+
+        .slide {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 4% 6%;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        @media (max-width: 1200px) { .slide { font-size: 1.25vw; } }
+        @media (max-width: 400px) { .slide { font-size: 5px; } }
+
+        .slide-number {
+            position: absolute;
+            top: 4%;
+            right: 4%;
+            font-size: 1em;
+            color: var(--muted-color);
+        }
+
+        h1 {
+            font-size: 4.5em;
+            margin-bottom: 0.4em;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #6610f2 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        h2 {
+            font-size: 3.2em;
+            margin-bottom: 0.8em;
+            color: var(--accent-color);
+            font-weight: 700;
+            max-width: 50%;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 1.6em;
+            line-height: 1.5;
+            margin-bottom: 0.8em;
+            color: var(--text-color);
+        }
+
+        .text-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 1em;
+        }
+
+        .illustration-block {
+            background: var(--card-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted-color);
+            font-size: 1.2em;
+            text-align: center;
+            padding: 40px;
+            height: 100%;
+            position: relative;
+        }
+
+        .illustration-label {
+            width: 80%;
+            line-height: 1.4;
+        }
+
+        ul {
+            padding-left: 1.2em;
+            margin: 0;
+        }
+
+        li {
+            font-size: 1.4em;
+            margin-bottom: 0.8em;
+            line-height: 1.4;
+        }
+
+        .accent {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide p {
+            font-size: 2em;
+            color: var(--muted-color);
+        }
+
+        .contact-info {
+            margin-top: 2em;
+            font-size: 1.4em;
+            color: var(--muted-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1 -->
+    <div class="slide-wrapper">
+        <div class="slide title-slide">
+            <h1 class="gradient-text">Техноград Диагностика</h1>
+            <p>Понятный интерфейс для&nbsp;управления сложной сетью</p>
+            <div class="slide-number">1</div>
+        </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>Как выглядит диагностика сегодня</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Инженер тратит 80% времени на&nbsp;сбор данных из&nbsp;разных систем: DSLAM, DHCP-серверы, биллинг.</p>
+                    <p>Каждый запрос&nbsp;— это отдельная текстовая команда. Информация разрознена, её&nbsp;сложно сопоставить быстро.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот терминала с&nbsp;множеством открытых окон и&nbsp;текстовых логов</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>Сложно заметить важное в&nbsp;текстовом хаосе</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>В&nbsp;текстовых отчетах легко пропустить одну цифру, которая указывает на&nbsp;причину поломки.</p>
+                    <p>Нужно помнить сотни команд и&nbsp;держать в&nbsp;уме схему сети. Это утомляет и&nbsp;ведет к&nbsp;ошибкам.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Иллюстрация: выделение одной строки в&nbsp;огромном массиве текста</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>Цена ожидания</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Пока инженер вручную опрашивает оборудование, клиент ждет.</p>
+                    <p>Ручная диагностика одной заявки может занимать до&nbsp;30&nbsp;минут. Это время, когда клиент недоволен, а&nbsp;поддержка перегружена.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Инфографика: таймер и&nbsp;нарастающее недовольство клиента</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>Наш подход: от&nbsp;текста к&nbsp;визуальному анализу</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Мы&nbsp;превращаем сырые данные в&nbsp;понятную картину.</p>
+                    <p>Система сама собирает информацию со&nbsp;всех платформ и&nbsp;показывает её&nbsp;в&nbsp;структурированном виде.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Визуальное сравнение: Текст vs&nbsp;Графический интерфейс</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>Единое окно</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Больше не&nbsp;нужно переключаться между программами.</p>
+                    <p>Данные по&nbsp;кабелю, логике сессий и&nbsp;ТВ-потокам собраны в&nbsp;одном месте.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот главного экрана: дерево поиска и&nbsp;вкладки</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>Найти абонента за&nbsp;2&nbsp;секунды</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Поиск работает по&nbsp;адресу, логину или номеру порта.</p>
+                    <p>Система мгновенно строит путь: <br><span class="accent">Дом&nbsp;→ Подъезд&nbsp;→ Коммутатор&nbsp;→ Порт</span>.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот строки поиска и&nbsp;выпадающего дерева объектов</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>Логика вкладок: от&nbsp;общего к&nbsp;частному</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <ul>
+                        <li><span class="accent">Основное:</span> общая информация и&nbsp;статус.</li>
+                        <li><span class="accent">Порт:</span> физические параметры линии.</li>
+                        <li><span class="accent">Оборудование:</span> версии ПО&nbsp;и&nbsp;серийные номера.</li>
+                        <li><span class="accent">Мониторинг:</span> живые графики.</li>
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот панели вкладок с&nbsp;пояснениями</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>Система сама подсвечивает проблемы</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Мы&nbsp;используем цветовую маркировку для&nbsp;важных параметров.</p>
+                    <p>Если запас помехоустойчивости падает ниже нормы&nbsp;— поле становится красным. Внимание инженера фокусируется мгновенно.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот с&nbsp;выделенным красным цветом параметром SNR</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>Видеть состояние медной пары (xDSL)</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Отображаем затухание, текущую и&nbsp;максимально возможную скорость.</p>
+                    <p>Сразу понятно: ограничивает скорость кабель или настройки профиля.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот параметров xDSL линии</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>График вместо таблиц: частотная диаграмма</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Интерактивный график распределения бит по&nbsp;частотам.</p>
+                    <p>Помогает «увидеть» наводки от&nbsp;радиостанций или плохих блоков питания, которые создают помехи.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот графика Bit Allocation</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>Анализ стабильности в&nbsp;динамике</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Графики ошибок за&nbsp;последние 15&nbsp;минут и&nbsp;24&nbsp;часа.</p>
+                    <p>Помогают понять: проблема постоянная или «плавающая» (например, обрывы только по&nbsp;вечерам).</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот графиков статистики ошибок</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h2>Контроль оптического дерева (xPON)</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Статус терминала, мощность сигнала и&nbsp;дистанция до&nbsp;абонента.</p>
+                    <p>Видно, где именно затухает сигнал: на&nbsp;магистрали или в&nbsp;квартире.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот параметров ONT и&nbsp;OLT</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 14 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">14</div>
+            <h2>Почему нет интернета? (Сервисный уровень)</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Проверка сессий, IP-адресов и&nbsp;ошибок авторизации.</p>
+                    <p>Система подскажет, если клиент просто вводит неверный пароль или услуга заблокирована.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот логов авторизации и&nbsp;статуса сессии</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 15 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">15</div>
+            <h2>Диагностика телевидения (IPTV)</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Какой канал смотрит абонент и&nbsp;есть ли потери пакетов.</p>
+                    <p>Можно подтвердить проблему с&nbsp;«рассыпанием» картинки без&nbsp;выезда к&nbsp;клиенту.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот параметров IPTV потока</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 16 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">16</div>
+            <h2>Проверка телефонии</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Статус порта АТС, напряжение в&nbsp;линии и&nbsp;активные переадресации.</p>
+                    <p>Помогает найти причину, почему абонент не&nbsp;может принять вызов.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот параметров TDM/VoIP порта</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 17 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">17</div>
+            <h2>Решение проблемы в&nbsp;один клик</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Прямо из&nbsp;интерфейса можно перезагрузить порт, сменить профиль скорости или запустить тест линии.</p>
+                    <p>Это безопасно: нет риска ошибиться в&nbsp;синтаксисе команды.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот кнопок управления: Перезагрузить, Сменить профиль</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 18 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">18</div>
+            <h2>Работает с&nbsp;любым оборудованием</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Поддерживаем Huawei, ZTE, Nokia, Eltex, Cisco и&nbsp;другие бренды.</p>
+                    <p>Система «переводит» разные команды оборудования в&nbsp;единый понятный вид.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Логотипы вендоров и&nbsp;пример унифицированных данных</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 19 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">19</div>
+            <h2>Совместимость с&nbsp;вашей сетью</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Взаимодействие через стандартные протоколы: SNMP, HTTP, SOAP, Telnet.</p>
+                    <p>Легко встраивается в&nbsp;ИТ-ландшафт оператора.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Схема интеграции ССДУ с&nbsp;внешними системами</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 20 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">20</div>
+            <h2>Помощь в&nbsp;анализе: акценты на&nbsp;важном</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Мы&nbsp;внедряем элементы автоматического анализа данных.</p>
+                    <p>Система не&nbsp;просто показывает цифры, а&nbsp;обращает внимание на&nbsp;несоответствия и&nbsp;аномалии.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот с&nbsp;выделенной аномалией: Sync Down > Attainable Down</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 21 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">21</div>
+            <h2>Подсказки, которые не&nbsp;мешают</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>В&nbsp;интерфейсе появляются короткие рекомендации: например, проверить сплиттер при&nbsp;низком SNR.</p>
+                    <p>Это помогает новичкам быстрее разобраться, а&nbsp;профи&nbsp;— не&nbsp;тратить время на&nbsp;очевидные вещи. Приоритет всегда остается за&nbsp;специалистом.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот блока рекомендаций из&nbsp;отчета</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 22 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">22</div>
+            <h2>Эффективность: скорость и&nbsp;точность</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <ul>
+                        <li><span class="accent">В&nbsp;2-3 раза быстрее:</span> диагностика занимает минуты вместо десятков минут.</li>
+                        <li><span class="accent">Меньше ошибок:</span> визуальный контроль и&nbsp;подсказки исключают человеческий фактор.</li>
+                        <li><span class="accent">Легкий старт:</span> новым сотрудникам не&nbsp;нужно учить тысячи команд, интерфейс понятен сразу.</li>
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">График: Сравнение времени диагностики до&nbsp;и&nbsp;после</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 23 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">23</div>
+            <h2>Экономия ресурсов компании</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Точная удаленная диагностика позволяет решать проблемы без&nbsp;выезда бригады там, где это возможно.</p>
+                    <p>Снижается нагрузка на&nbsp;экспертов, так как типовые задачи теперь может решать первая линия поддержки.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Инфографика: перераспределение задач между линиями поддержки</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 24 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">24</div>
+            <h2>Прозрачность и&nbsp;контроль</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Система фиксирует все действия пользователей и&nbsp;запросы к&nbsp;оборудованию.</p>
+                    <p>Это помогает разбирать сложные случаи и&nbsp;гарантирует, что настройки не&nbsp;будут изменены случайно.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Скриншот журнала действий</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 25 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">25</div>
+            <h2>Готовность к&nbsp;росту</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <p>Система масштабируется вместе с&nbsp;вашей сетью.</p>
+                    <p>Одинаково быстрая работа как с&nbsp;тысячей, так и&nbsp;с&nbsp;миллионом абонентов.</p>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Иллюстрация: масштабируемая архитектура</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 26 -->
+    <div class="slide-wrapper">
+        <div class="slide">
+            <div class="slide-number">26</div>
+            <h2>Резюме: почему Техноград Диагностика?</h2>
+            <div class="row h-100">
+                <div class="col-6 text-column">
+                    <ul>
+                        <li>Все данные в&nbsp;одном окне&nbsp;— больше никакого текстового хаоса.</li>
+                        <li>Визуализация вместо логов&nbsp;— проблемы видны сразу.</li>
+                        <li>Поддержка всех вендоров&nbsp;— единый язык для&nbsp;всей сети.</li>
+                        <li>Умные подсказки&nbsp;— помощь инженеру в&nbsp;принятии решений.</li>
+                    </ul>
+                </div>
+                <div class="col-6">
+                    <div class="illustration-block">
+                        <div class="illustration-label">Коллаж ключевых преимуществ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 27 -->
+    <div class="slide-wrapper">
+        <div class="slide title-slide">
+            <div class="slide-number">27</div>
+            <h1 class="gradient-text">Техноград Диагностика</h1>
+            <p>Посмотрите на&nbsp;свою сеть по-новому</p>
+            <div class="contact-info">
+                info@tgrad.ru | +7&nbsp;383&nbsp;346-30-46
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
