@@ -12,7 +12,7 @@
         :root {
             --bg-color: #0b1220;
             --card-bg: rgba(255, 255, 255, 0.05);
-            --accent-color: #06b6d4; /* Turquoise from gradient end */
+            --accent-color: #14b8a6; /* Teal 500 */
             --text-color: #cffafe; /* Cyan 100 - very light turquoise */
             --muted-color: #94a3b8; /* Slate 400 - grey with a hint of blue/cyan */
             --border-color: rgba(255, 255, 255, 0.1);
@@ -56,7 +56,11 @@
         .slide {
             width: 100%;
             aspect-ratio: 16 / 9;
-            background-color: var(--bg-color);
+            background: 
+                radial-gradient(1000px 600px at 20% 10%, rgba(96,165,250,.18), transparent 60%),
+                radial-gradient(900px 600px at 70% 0%, rgba(34,197,94,.12), transparent 55%),
+                radial-gradient(900px 600px at 70% 90%, rgba(245,158,11,.10), transparent 55%),
+                var(--bg-color);
             border: 1px solid var(--border-color);
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             position: relative;
@@ -71,12 +75,18 @@
         @media (max-width: 1200px) { .slide { font-size: 1.25vw; } }
         @media (max-width: 400px) { .slide { font-size: 5px; } }
 
-        .slide-number {
+        .slide-meta {
             position: absolute;
-            top: 4%;
+            top: 6%; /* Увеличено с 4% до 6%, чтобы соответствовать отступу под плашкой */
             right: 4%;
-            font-size: 1em;
+            text-align: right;
             color: var(--muted-color);
+            font-size: 1em;
+        }
+
+        .block-title {
+            margin-top: 1em;
+            font-size: 1.1em; /* Увеличено с 0.8em */
         }
 
         h1 {
@@ -87,7 +97,7 @@
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #6610f2 0%, #06b6d4 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #14b8a6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -178,14 +188,16 @@
         <div class="slide title-slide">
             <h1 class="gradient-text">Техноград Диагностика</h1>
             <p>Понятный интерфейс для&nbsp;управления сложной сетью</p>
-            <div class="slide-number">1</div>
         </div>
     </div>
 
     <!-- Slide 2 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">2</div>
+            <div class="slide-meta">
+                <div class="slide-number">2</div>
+                <div class="block-title">1. Введение и&nbsp;контекст</div>
+            </div>
             <h2>Как выглядит диагностика сегодня</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -204,7 +216,10 @@
     <!-- Slide 3 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">3</div>
+            <div class="slide-meta">
+                <div class="slide-number">3</div>
+                <div class="block-title">1. Введение и&nbsp;контекст</div>
+            </div>
             <h2>Сложно заметить важное в&nbsp;текстовом хаосе</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -223,7 +238,10 @@
     <!-- Slide 4 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">4</div>
+            <div class="slide-meta">
+                <div class="slide-number">4</div>
+                <div class="block-title">1. Введение и&nbsp;контекст</div>
+            </div>
             <h2>Цена ожидания</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -242,7 +260,10 @@
     <!-- Slide 5 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">5</div>
+            <div class="slide-meta">
+                <div class="slide-number">5</div>
+                <div class="block-title">1. Введение и&nbsp;контекст</div>
+            </div>
             <h2>Наш подход: от&nbsp;текста к&nbsp;визуальному анализу</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -261,7 +282,10 @@
     <!-- Slide 6 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">6</div>
+            <div class="slide-meta">
+                <div class="slide-number">6</div>
+                <div class="block-title">2. Интерфейс и&nbsp;логика</div>
+            </div>
             <h2>Единое окно</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -280,7 +304,10 @@
     <!-- Slide 7 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">7</div>
+            <div class="slide-meta">
+                <div class="slide-number">7</div>
+                <div class="block-title">2. Интерфейс и&nbsp;логика</div>
+            </div>
             <h2>Найти абонента за&nbsp;2&nbsp;секунды</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -299,7 +326,10 @@
     <!-- Slide 8 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">8</div>
+            <div class="slide-meta">
+                <div class="slide-number">8</div>
+                <div class="block-title">2. Интерфейс и&nbsp;логика</div>
+            </div>
             <h2>Логика вкладок: от&nbsp;общего к&nbsp;частному</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -322,7 +352,10 @@
     <!-- Slide 9 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">9</div>
+            <div class="slide-meta">
+                <div class="slide-number">9</div>
+                <div class="block-title">2. Интерфейс и&nbsp;логика</div>
+            </div>
             <h2>Система сама подсвечивает проблемы</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -341,7 +374,10 @@
     <!-- Slide 10 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">10</div>
+            <div class="slide-meta">
+                <div class="slide-number">10</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Видеть состояние медной пары (xDSL)</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -360,7 +396,10 @@
     <!-- Slide 11 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">11</div>
+            <div class="slide-meta">
+                <div class="slide-number">11</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>График вместо таблиц: частотная диаграмма</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -379,7 +418,10 @@
     <!-- Slide 12 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">12</div>
+            <div class="slide-meta">
+                <div class="slide-number">12</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Анализ стабильности в&nbsp;динамике</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -398,7 +440,10 @@
     <!-- Slide 13 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">13</div>
+            <div class="slide-meta">
+                <div class="slide-number">13</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Контроль оптического дерева (xPON)</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -417,7 +462,10 @@
     <!-- Slide 14 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">14</div>
+            <div class="slide-meta">
+                <div class="slide-number">14</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Почему нет интернета? (Сервисный уровень)</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -436,7 +484,10 @@
     <!-- Slide 15 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">15</div>
+            <div class="slide-meta">
+                <div class="slide-number">15</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Диагностика телевидения (IPTV)</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -455,7 +506,10 @@
     <!-- Slide 16 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">16</div>
+            <div class="slide-meta">
+                <div class="slide-number">16</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Проверка телефонии</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -474,7 +528,10 @@
     <!-- Slide 17 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">17</div>
+            <div class="slide-meta">
+                <div class="slide-number">17</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Решение проблемы в&nbsp;один клик</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -493,7 +550,10 @@
     <!-- Slide 18 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">18</div>
+            <div class="slide-meta">
+                <div class="slide-number">18</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Работает с&nbsp;любым оборудованием</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -512,7 +572,10 @@
     <!-- Slide 19 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">19</div>
+            <div class="slide-meta">
+                <div class="slide-number">19</div>
+                <div class="block-title">3. Функционал и&nbsp;технологии</div>
+            </div>
             <h2>Совместимость с&nbsp;вашей сетью</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -531,7 +594,10 @@
     <!-- Slide 20 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">20</div>
+            <div class="slide-meta">
+                <div class="slide-number">20</div>
+                <div class="block-title">4. Умные подсказки и&nbsp;ИИ</div>
+            </div>
             <h2>Помощь в&nbsp;анализе: акценты на&nbsp;важном</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -550,7 +616,10 @@
     <!-- Slide 21 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">21</div>
+            <div class="slide-meta">
+                <div class="slide-number">21</div>
+                <div class="block-title">4. Умные подсказки и&nbsp;ИИ</div>
+            </div>
             <h2>Подсказки, которые не&nbsp;мешают</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -569,7 +638,10 @@
     <!-- Slide 22 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">22</div>
+            <div class="slide-meta">
+                <div class="slide-number">22</div>
+                <div class="block-title">5. Эффективность и&nbsp;итоги</div>
+            </div>
             <h2>Эффективность: скорость и&nbsp;точность</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -591,7 +663,10 @@
     <!-- Slide 23 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">23</div>
+            <div class="slide-meta">
+                <div class="slide-number">23</div>
+                <div class="block-title">5. Эффективность и&nbsp;итоги</div>
+            </div>
             <h2>Экономия ресурсов компании</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -610,7 +685,10 @@
     <!-- Slide 24 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">24</div>
+            <div class="slide-meta">
+                <div class="slide-number">24</div>
+                <div class="block-title">5. Эффективность и&nbsp;итоги</div>
+            </div>
             <h2>Прозрачность и&nbsp;контроль</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -629,7 +707,10 @@
     <!-- Slide 25 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">25</div>
+            <div class="slide-meta">
+                <div class="slide-number">25</div>
+                <div class="block-title">5. Эффективность и&nbsp;итоги</div>
+            </div>
             <h2>Готовность к&nbsp;росту</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -648,7 +729,10 @@
     <!-- Slide 26 -->
     <div class="slide-wrapper">
         <div class="slide">
-            <div class="slide-number">26</div>
+            <div class="slide-meta">
+                <div class="slide-number">26</div>
+                <div class="block-title">5. Эффективность и&nbsp;итоги</div>
+            </div>
             <h2>Резюме: почему Техноград Диагностика?</h2>
             <div class="row h-100">
                 <div class="col-6 text-column">
@@ -671,7 +755,6 @@
     <!-- Slide 27 -->
     <div class="slide-wrapper">
         <div class="slide title-slide">
-            <div class="slide-number">27</div>
             <h1 class="gradient-text">Техноград Диагностика</h1>
             <p>Посмотрите на&nbsp;свою сеть по-новому</p>
             <div class="contact-info">
