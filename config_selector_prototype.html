@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Прототип: Единое поле выбора конфигурации</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================================================================
+       ОБЩИЕ СТИЛИ
+       ================================================================ */
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #334155;
+      --surface-3: #475569;
+      --border: rgba(255,255,255,0.08);
+      --border-focus: rgba(59, 130, 246, 0.5);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --teal: #14b8a6;
+      --teal-soft: rgba(20, 184, 166, 0.15);
+      --violet: #8b5cf6;
+      --violet-soft: rgba(139, 92, 246, 0.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --green: #22c55e;
+      --green-soft: rgba(34, 197, 94, 0.15);
+      --red: #ef4444;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 24px;
+      line-height: 1.5;
+    }
+
+    .page-header {
+      max-width: 900px;
+      margin: 0 auto 48px;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #6366f1, #14b8a6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Секция варианта */
+    .variant-section {
+      max-width: 900px;
+      margin: 0 auto 64px;
+    }
+
+    .variant-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .variant-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 3px 10px;
+      border-radius: 100px;
+      flex-shrink: 0;
+    }
+
+    .variant-label-a { background: var(--accent-soft); color: var(--accent); }
+    .variant-label-b { background: var(--teal-soft); color: var(--teal); }
+    .variant-label-c { background: var(--violet-soft); color: var(--violet); }
+
+    .variant-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .variant-desc {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      padding-left: 2px;
+    }
+
+    .variant-desc strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .demo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      position: relative;
+    }
+
+    .demo-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Результат выбора */
+    .result-display {
+      margin-top: 20px;
+      padding: 12px 16px;
+      background: var(--surface-2);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--text-dim);
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-display .result-value {
+      color: var(--green);
+      font-weight: 600;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* ================================================================
+       ВАРИАНТ A: Guided Stepper Input
+       Паттерн: пошаговый ввод внутри одного поля
+       Вдохновение: Jira JQL, Slack slash-commands, Linear filters
+       ================================================================ */
+
+    .stepper-wrap {
+      position: relative;
+    }
+
+    .stepper-steps {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .stepper-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: transparent;
+      transition: all 0.2s;
+      cursor: default;
+    }
+
+    .stepper-step.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .stepper-step.done {
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .stepper-step .step-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--surface-2);
+      color: var(--text-dim);
+    }
+
+    .stepper-step.active .step-num {
+      background: var(--accent);
+      color: white;
+    }
+
+    .stepper-step.done .step-num {
+      background: var(--green);
+      color: white;
+    }
+
+    .stepper-step .step-arrow {
+      color: var(--text-dim);
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    .stepper-input-row {
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px 8px;
+      transition: border-color 0.2s;
+      min-height: 48px;
+      flex-wrap: wrap;
+      gap: 4px;
+      cursor: text;
+    }
+
+    .stepper-input-row:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .stepper-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: default;
+    }
+
+    .stepper-chip-vendor { background: var(--accent-soft); color: var(--accent); }
+    .stepper-chip-model { background: var(--teal-soft); color: var(--teal); }
+    .stepper-chip-tech { background: var(--amber-soft); color: var(--amber); }
+    .stepper-chip-config { background: var(--green-soft); color: var(--green); }
+
+    .stepper-chip .chip-remove {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+    }
+
+    .stepper-chip .chip-remove:hover { opacity: 1; }
+
+    .stepper-chip .chip-label {
+      font-size: 10px;
+      opacity: 0.6;
+      margin-right: 2px;
+    }
+
+    .stepper-input-row input {
+      flex: 1;
+      min-width: 120px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      padding: 6px 4px;
+    }
+
+    .stepper-input-row input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .stepper-dropdown {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      z-index: 100;
+      max-height: 280px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .stepper-dropdown.open { display: block; }
+
+    .stepper-dropdown-header {
+      padding: 8px 14px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+    }
+
+    .stepper-dropdown-item {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.1s;
+    }
+
+    .stepper-dropdown-item:hover,
+    .stepper-dropdown-item.highlighted {
+      background: var(--accent-soft);
+    }
+
+    .stepper-dropdown-item .item-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-left: auto;
+    }
+
+    .stepper-dropdown-item .item-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .stepper-shortcut-hint {
+      padding: 8px 14px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 16px;
+      position: sticky;
+      bottom: 0;
+      background: var(--surface);
+    }
+
+    .stepper-shortcut-hint kbd {
+      background: var(--surface-2);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 10px;
+      margin-right: 4px;
+    }
+
+    /* ================================================================
+       ВАРИАНТ B: Token/Chip Faceted Search
+       Паттерн: фасетный поиск с токенами-фильтрами
+       Вдохновение: Gmail search, Notion filters, GitHub issues
+       ================================================================ */
+
+    .faceted-wrap {
+      position: relative;
+    }
+
+    .faceted-input-row {
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 10px;
+      min-height: 48px;
+      flex-wrap: wrap;
+      gap: 6px;
+      cursor: text;
+      transition: border-color 0.2s;
+    }
+
+    .faceted-input-row:focus-within {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-soft);
+    }
+
+    .faceted-search-icon {
+      color: var(--text-dim);
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    .faceted-token {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 6px;
+      font-size: 12px;
+      overflow: hidden;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .faceted-token-key {
+      padding: 4px 6px 4px 8px;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      opacity: 0.7;
+    }
+
+    .faceted-token-value {
+      padding: 4px 4px 4px 6px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .faceted-token-remove {
+      padding: 4px 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+
+    .faceted-token-remove:hover { color: var(--red); }
+
+    .faceted-token-vendor .faceted-token-key { color: var(--accent); }
+    .faceted-token-model .faceted-token-key { color: var(--teal); }
+    .faceted-token-tech .faceted-token-key { color: var(--amber); }
+
+    .faceted-input-row input {
+      flex: 1;
+      min-width: 140px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      padding: 4px 2px;
+    }
+
+    .faceted-input-row input::placeholder { color: var(--text-dim); }
+
+    .faceted-dropdown {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      z-index: 100;
+      max-height: 360px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .faceted-dropdown.open { display: block; }
+
+    .faceted-group {
+      padding: 4px 0;
+    }
+
+    .faceted-group + .faceted-group {
+      border-top: 1px solid var(--border);
+    }
+
+    .faceted-group-title {
+      padding: 8px 14px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    .faceted-item {
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.1s;
+    }
+
+    .faceted-item:hover,
+    .faceted-item.highlighted {
+      background: var(--teal-soft);
+    }
+
+    .faceted-item-prefix {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .faceted-item-prefix-vendor { background: var(--accent-soft); color: var(--accent); }
+    .faceted-item-prefix-model { background: var(--teal-soft); color: var(--teal); }
+    .faceted-item-prefix-tech { background: var(--amber-soft); color: var(--amber); }
+    .faceted-item-prefix-config { background: var(--green-soft); color: var(--green); }
+
+    .faceted-item-path {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-left: auto;
+    }
+
+    .faceted-kbd-hint {
+      padding: 6px 14px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      position: sticky;
+      bottom: 0;
+      background: var(--surface);
+    }
+
+    .faceted-kbd-hint .hint-sep { 
+      width: 1px;
+      height: 12px;
+      background: var(--border);
+    }
+
+    .faceted-kbd-hint kbd {
+      background: var(--surface-2);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 10px;
+      margin-right: 3px;
+    }
+
+    /* ================================================================
+       ВАРИАНТ C: Command Palette / Unified Smart Search
+       Паттерн: мгновенный поиск по всем уровням одновременно
+       Вдохновение: VS Code Cmd+P, Raycast, macOS Spotlight
+       ================================================================ */
+
+    .palette-wrap {
+      position: relative;
+    }
+
+    .palette-input-container {
+      position: relative;
+    }
+
+    .palette-input-container input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      padding: 12px 16px 12px 44px;
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .palette-input-container input:focus {
+      border-color: var(--violet);
+      box-shadow: 0 0 0 3px var(--violet-soft);
+    }
+
+    .palette-input-container input::placeholder { color: var(--text-dim); }
+
+    .palette-input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .palette-selected-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      min-height: 28px;
+      flex-wrap: wrap;
+    }
+
+    .palette-selected-bar:empty { display: none; }
+
+    .palette-breadcrumb {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .palette-breadcrumb-item {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .palette-breadcrumb-item:hover { opacity: 0.7; }
+
+    .palette-breadcrumb-item-vendor { background: var(--accent-soft); color: var(--accent); }
+    .palette-breadcrumb-item-model { background: var(--teal-soft); color: var(--teal); }
+    .palette-breadcrumb-item-tech { background: var(--amber-soft); color: var(--amber); }
+    .palette-breadcrumb-item-config { background: var(--green-soft); color: var(--green); font-weight: 600; }
+
+    .palette-breadcrumb-sep {
+      color: var(--text-dim);
+      font-size: 10px;
+    }
+
+    .palette-breadcrumb-clear {
+      margin-left: 4px;
+      border: none;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-dim);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .palette-breadcrumb-clear:hover { color: var(--red); }
+
+    .palette-dropdown {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      z-index: 100;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .palette-dropdown.open { display: block; }
+
+    .palette-section {
+      padding: 4px 0;
+    }
+
+    .palette-section + .palette-section {
+      border-top: 1px solid var(--border);
+    }
+
+    .palette-section-title {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+    }
+
+    .palette-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.1s;
+    }
+
+    .palette-item:hover,
+    .palette-item.highlighted {
+      background: var(--violet-soft);
+    }
+
+    .palette-item-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .palette-item-icon-vendor { background: var(--accent-soft); color: var(--accent); }
+    .palette-item-icon-model { background: var(--teal-soft); color: var(--teal); }
+    .palette-item-icon-config { background: var(--green-soft); color: var(--green); }
+
+    .palette-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .palette-item-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .palette-item-name mark {
+      background: transparent;
+      color: var(--violet);
+      font-weight: 700;
+    }
+
+    .palette-item-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .palette-item-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .palette-item-tag-dsl { background: var(--accent-soft); color: var(--accent); }
+    .palette-item-tag-gpon { background: var(--teal-soft); color: var(--teal); }
+    .palette-item-tag-eth { background: var(--amber-soft); color: var(--amber); }
+
+    .palette-footer {
+      padding: 8px 16px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 16px;
+      position: sticky;
+      bottom: 0;
+      background: var(--surface);
+    }
+
+    .palette-footer kbd {
+      background: var(--surface-2);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 10px;
+      margin-right: 3px;
+    }
+
+    /* Скроллбар */
+    .stepper-dropdown::-webkit-scrollbar,
+    .faceted-dropdown::-webkit-scrollbar,
+    .palette-dropdown::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .stepper-dropdown::-webkit-scrollbar-track,
+    .faceted-dropdown::-webkit-scrollbar-track,
+    .palette-dropdown::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .stepper-dropdown::-webkit-scrollbar-thumb,
+    .faceted-dropdown::-webkit-scrollbar-thumb,
+    .palette-dropdown::-webkit-scrollbar-thumb {
+      background: var(--surface-3);
+      border-radius: 3px;
+    }
+
+    /* Highlight совпадения */
+    mark {
+      background: transparent;
+      color: inherit;
+      font-weight: 700;
+      text-decoration: underline;
+      text-decoration-color: currentColor;
+      text-underline-offset: 2px;
+    }
+
+    /* Комментарий-описание */
+    .approach-notes {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .approach-notes h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .approach-notes ul {
+      padding-left: 18px;
+      margin: 6px 0;
+    }
+
+    .approach-notes li {
+      margin-bottom: 3px;
+    }
+
+    .approach-notes .note-pro { color: var(--green); }
+    .approach-notes .note-con { color: var(--amber); }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     ЗАГОЛОВОК
+     ============================================================ -->
+<div class="page-header">
+  <h1>Единое поле выбора конфигурации</h1>
+  <p>
+    Три варианта замены каскада из четырёх отдельных дропдаунов 
+    (Производитель → Модель → Технология → Конфигурация) 
+    на единое поле ввода с саджестом.
+  </p>
+</div>
+
+
+<!-- ============================================================
+     ВАРИАНТ A: GUIDED STEPPER INPUT
+     ============================================================ -->
+<div class="variant-section">
+  <div class="variant-header">
+    <span class="variant-label variant-label-a">Вариант A</span>
+    <h2>Guided Stepper — пошаговый ввод</h2>
+  </div>
+  <p class="variant-desc">
+    <strong>Паттерн:</strong> Одно поле, которое «ведёт» пользователя по шагам. Каждый выбранный уровень 
+    отображается как цветной чип внутри поля, а подсказка (placeholder) меняется на следующий шаг. 
+    Прогресс-бар наверху показывает, на каком этапе находится пользователь.<br>
+    <strong>Аналоги:</strong> Jira JQL Builder, Slack slash-commands, Linear Filters, Algolia InstantSearch.
+  </p>
+  <div class="demo-card">
+    <div class="demo-card-title">Выбор конфигурации оборудования</div>
+    <div class="stepper-wrap" id="stepperA">
+
+      <!-- Индикатор шагов -->
+      <div class="stepper-steps">
+        <div class="stepper-step active" data-step="vendor">
+          <span class="step-num">1</span> Производитель
+        </div>
+        <span class="stepper-step" style="padding:0; color:var(--text-dim)">→</span>
+        <div class="stepper-step" data-step="model">
+          <span class="step-num">2</span> Модель
+        </div>
+        <span class="stepper-step" style="padding:0; color:var(--text-dim)">→</span>
+        <div class="stepper-step" data-step="tech">
+          <span class="step-num">3</span> Технология
+        </div>
+        <span class="stepper-step" style="padding:0; color:var(--text-dim)">→</span>
+        <div class="stepper-step" data-step="config">
+          <span class="step-num">4</span> Конфигурация
+        </div>
+      </div>
+
+      <!-- Поле ввода с чипами -->
+      <div class="stepper-input-row" id="stepperInputRow">
+        <input type="text" id="stepperInput" placeholder="Начните вводить производителя…" autocomplete="off">
+      </div>
+
+      <!-- Выпадающий список -->
+      <div class="stepper-dropdown" id="stepperDropdown"></div>
+    </div>
+
+    <div class="result-display" id="stepperResult">
+      <span style="color:var(--text-dim)">Конфигурация не выбрана</span>
+    </div>
+
+    <div class="approach-notes">
+      <h4>Особенности подхода</h4>
+      <ul>
+        <li><span class="note-pro">+</span> Минимальная когнитивная нагрузка: в каждый момент пользователь видит только релевантные варианты текущего шага</li>
+        <li><span class="note-pro">+</span> Прогресс-бар даёт чувство продвижения и уверенности</li>
+        <li><span class="note-pro">+</span> Принудительная иерархия исключает невалидные комбинации</li>
+        <li><span class="note-con">−</span> Нельзя «перепрыгнуть» шаг (например, сразу ввести конфигурацию)</li>
+        <li><span class="note-con">−</span> Опытные пользователи, знающие конфигурацию наизусть, вынуждены проходить все шаги</li>
+      </ul>
+      <p style="margin-top:8px">
+        <strong>Лучше всего подходит для:</strong> новичков и редких сценариев, когда пользователь не знает точное имя конфигурации 
+        и нуждается в «проводнике» по иерархии.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ВАРИАНТ B: FACETED TOKEN SEARCH
+     ============================================================ -->
+<div class="variant-section">
+  <div class="variant-header">
+    <span class="variant-label variant-label-b">Вариант B</span>
+    <h2>Faceted Tokens — фасетный поиск</h2>
+  </div>
+  <p class="variant-desc">
+    <strong>Паттерн:</strong> Единое поисковое поле, в которое можно вводить текст свободно. Система 
+    группирует результаты по категориям (производитель, модель, технология, конфигурация). 
+    Выбранные значения фиксируются как токены-фильтры «ключ:значение», сужая саджест.<br>
+    <strong>Аналоги:</strong> Gmail Advanced Search, GitHub Issues Filter, Notion Database Filters, Figma search.
+  </p>
+  <div class="demo-card">
+    <div class="demo-card-title">Выбор конфигурации оборудования</div>
+    <div class="faceted-wrap" id="facetedB">
+      <div class="faceted-input-row" id="facetedInputRow">
+        <svg class="faceted-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="facetedInput" placeholder="Поиск: производитель, модель или конфигурация…" autocomplete="off">
+      </div>
+      <div class="faceted-dropdown" id="facetedDropdown"></div>
+    </div>
+
+    <div class="result-display" id="facetedResult">
+      <span style="color:var(--text-dim)">Конфигурация не выбрана</span>
+    </div>
+
+    <div class="approach-notes">
+      <h4>Особенности подхода</h4>
+      <ul>
+        <li><span class="note-pro">+</span> Гибкость: можно начать поиск с любого уровня (например, сразу ввести «MA5600»)</li>
+        <li><span class="note-pro">+</span> Фильтрация сужает результаты — каждый новый токен уточняет список</li>
+        <li><span class="note-pro">+</span> Удобно для опытных пользователей, знающих часть информации</li>
+        <li><span class="note-con">−</span> Может быть непривычен для пользователей, привыкших к каскадным дропдаунам</li>
+        <li><span class="note-con">−</span> Требует понимания концепции фасетных фильтров (ключ:значение)</li>
+      </ul>
+      <p style="margin-top:8px">
+        <strong>Лучше всего подходит для:</strong> опытных операторов с высокой частотой использования, которые 
+        помнят названия моделей и хотят быстро добраться до нужной конфигурации.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ВАРИАНТ C: COMMAND PALETTE / UNIFIED SMART SEARCH
+     ============================================================ -->
+<div class="variant-section">
+  <div class="variant-header">
+    <span class="variant-label variant-label-c">Вариант C</span>
+    <h2>Smart Palette — мгновенный поиск</h2>
+  </div>
+  <p class="variant-desc">
+    <strong>Паттерн:</strong> Одно поле, в которое вводится произвольный текст. Система ищет совпадения 
+    сразу по всем уровням — по названию производителя, модели и конфигурации — и показывает 
+    результаты в виде единого отранжированного списка с группировкой. Каждая строка содержит 
+    полный «путь» до конфигурации, что позволяет выбрать результат за одно действие.<br>
+    <strong>Аналоги:</strong> VS Code Command Palette (Cmd+P), Raycast, macOS Spotlight, Stripe Dashboard Search.
+  </p>
+  <div class="demo-card">
+    <div class="demo-card-title">Выбор конфигурации оборудования</div>
+    <div class="palette-wrap" id="paletteC">
+      <div class="palette-input-container">
+        <svg class="palette-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="paletteInput" placeholder="Конфигурация: введите любую часть названия…" autocomplete="off">
+      </div>
+      <div class="palette-selected-bar" id="paletteBreadcrumb"></div>
+      <div class="palette-dropdown" id="paletteDropdown"></div>
+    </div>
+
+    <div class="result-display" id="paletteResult">
+      <span style="color:var(--text-dim)">Конфигурация не выбрана</span>
+    </div>
+
+    <div class="approach-notes">
+      <h4>Особенности подхода</h4>
+      <ul>
+        <li><span class="note-pro">+</span> Максимальная скорость: от открытия до выбора конфигурации — один ввод и один клик</li>
+        <li><span class="note-pro">+</span> Fuzzy-поиск по всем полям одновременно (имя вендора, модели и конфигурации)</li>
+        <li><span class="note-pro">+</span> Полный «путь» в каждой строке избавляет от необходимости помнить иерархию</li>
+        <li><span class="note-pro">+</span> Привычный паттерн для пользователей IDE, macOS Spotlight, браузерных омнибоксов</li>
+        <li><span class="note-con">−</span> При большом количестве конфигураций список может быть длинным без предварительной фильтрации</li>
+        <li><span class="note-con">−</span> Нет жёсткой иерархии — теоретически возможны ошибки, если конфигурации названы неинтуитивно</li>
+      </ul>
+      <p style="margin-top:8px">
+        <strong>Лучше всего подходит для:</strong> максимально быстрого доступа к конфигурации при любом уровне 
+        знаний пользователя. Универсальный вариант, хорошо масштабируется при росте числа конфигураций.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ДАННЫЕ И ЛОГИКА
+     ============================================================ -->
+<script>
+// ==================================================================
+// БАЗА ДАННЫХ КОНФИГУРАЦИЙ
+// Максимально правдоподобные данные для телеком-оборудования
+// ==================================================================
+const DB = {
+  vendors: [
+    {
+      name: 'Huawei',
+      models: [
+        { name: 'SmartAX MA5600T V800R015', tech: 'DSL', configs: ['HUAWEI_MA5600T_STD', 'HUAWEI_MA5600T_CUSTOM'] },
+        { name: 'SmartAX MA5603T V800R018', tech: 'DSL', configs: ['HUAWEI_MA5603T_STD'] },
+        { name: 'SmartAX MA5616 V800R311', tech: 'DSL', configs: ['HUAWEI_MA5616_STD'] },
+        { name: 'SmartAX MA5608T V800R313', tech: 'GPON', configs: ['HUAWEI_MA5608T_GPON_STD'] },
+        { name: 'SmartAX MA5800-X7 V800R020', tech: 'GPON', configs: ['HUAWEI_MA5800_GPON_STD', 'HUAWEI_MA5800_GPON_V2'] },
+        { name: 'SmartAX MA5800-X17 V800R021', tech: 'GPON', configs: ['HUAWEI_MA5800X17_GPON_STD'] },
+      ]
+    },
+    {
+      name: 'Alcatel-Lucent',
+      models: [
+        { name: '7324 RU R4.0.2(V3.52)', tech: 'DSL', configs: ['ALCATEL7324_STD'] },
+        { name: '7324 RU R4.2(V3.52)', tech: 'DSL', configs: ['ALCATEL7324_V42_STD'] },
+        { name: '7324 RU R4.2.1(V3.53)', tech: 'DSL', configs: ['ALCATEL7324_V421_STD'] },
+        { name: '7302 ISAM R5.5', tech: 'DSL', configs: ['ALCATEL7302_STD', 'ALCATEL7302_CUSTOM'] },
+        { name: '7330 ISAM FD R6.1', tech: 'DSL', configs: ['ALCATEL7330_STD'] },
+      ]
+    },
+    {
+      name: 'ZTE',
+      models: [
+        { name: 'ZXDSL 9806H V2', tech: 'DSL', configs: ['ZTE_9806H_STD'] },
+        { name: 'ZXDSL 9210 V1', tech: 'DSL', configs: ['ZTE_9210_STD'] },
+        { name: 'ZXA10 C320 V2.1', tech: 'GPON', configs: ['ZTE_C320_GPON_STD'] },
+        { name: 'ZXA10 C300 V1.2', tech: 'GPON', configs: ['ZTE_C300_GPON_STD', 'ZTE_C300_GPON_V2'] },
+        { name: 'ZXA10 C600 V2.0', tech: 'GPON', configs: ['ZTE_C600_GPON_STD'] },
+      ]
+    },
+    {
+      name: 'Zyxel',
+      models: [
+        { name: 'IES1248-51 V3.53(ABQ.5)', tech: 'DSL', configs: ['ZYXEL_IES1248_STD'] },
+        { name: 'IES5005 V3.70', tech: 'DSL', configs: ['ZYXEL_IES5005_STD'] },
+        { name: 'IES5106M V3.80', tech: 'DSL', configs: ['ZYXEL_IES5106_STD'] },
+        { name: 'IES6217M V4.10', tech: 'DSL', configs: ['ZYXEL_IES6217_STD'] },
+      ]
+    },
+    {
+      name: 'Eltex',
+      models: [
+        { name: 'MES2324 HW3', tech: 'Ethernet', configs: ['ELTEX_MES2324_STD'] },
+        { name: 'MES3324F HW2', tech: 'Ethernet', configs: ['ELTEX_MES3324F_STD'] },
+        { name: 'MA4000-PX V3.28', tech: 'GPON', configs: ['ELTEX_MA4000_GPON_STD'] },
+        { name: 'LTP-8X V2.36', tech: 'GPON', configs: ['ELTEX_LTP8X_GPON_STD'] },
+        { name: 'LTP-4X V1.12', tech: 'GPON', configs: ['ELTEX_LTP4X_GPON_STD'] },
+      ]
+    },
+    {
+      name: 'Iskratel',
+      models: [
+        { name: 'SI3000 Lumia G08A', tech: 'DSL', configs: ['ISKRATEL_LUMIA_STD'] },
+        { name: 'SI3000 Lumia G16A', tech: 'DSL', configs: ['ISKRATEL_LUMIA_G16_STD'] },
+      ]
+    },
+    {
+      name: 'Cisco',
+      models: [
+        { name: 'ME 3400 IOS 12.2', tech: 'Ethernet', configs: ['CISCO_ME3400_STD'] },
+        { name: 'Catalyst 3750 IOS 15.0', tech: 'Ethernet', configs: ['CISCO_C3750_STD'] },
+      ]
+    },
+    {
+      name: 'D-Link',
+      models: [
+        { name: 'DAS-3248 A1', tech: 'DSL', configs: ['DLINK_DAS3248_STD'] },
+        { name: 'DES-3200-28 C1', tech: 'Ethernet', configs: ['DLINK_DES3200_STD'] },
+      ]
+    },
+  ]
+};
+
+// Плоский список всех конфигураций для палитры (Вариант C)
+function buildFlatList() {
+  const list = [];
+  DB.vendors.forEach(v => {
+    v.models.forEach(m => {
+      m.configs.forEach(c => {
+        list.push({
+          vendor: v.name,
+          model: m.name,
+          tech: m.tech,
+          config: c,
+          searchText: `${v.name} ${m.name} ${m.tech} ${c}`.toLowerCase()
+        });
+      });
+    });
+  });
+  return list;
+}
+
+const flatConfigs = buildFlatList();
+
+// ==================================================================
+// ОБЩИЕ УТИЛИТЫ
+// ==================================================================
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightMatch(text, query) {
+  if (!query) return escapeHtml(text);
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return escapeHtml(text);
+  return escapeHtml(text.substring(0, idx)) 
+       + '<mark>' + escapeHtml(text.substring(idx, idx + query.length)) + '</mark>' 
+       + escapeHtml(text.substring(idx + query.length));
+}
+
+function techTagClass(tech) {
+  switch(tech) {
+    case 'DSL': return 'palette-item-tag-dsl';
+    case 'GPON': return 'palette-item-tag-gpon';
+    case 'Ethernet': return 'palette-item-tag-eth';
+    default: return '';
+  }
+}
+
+
+// ==================================================================
+// ВАРИАНТ A: GUIDED STEPPER
+// ==================================================================
+(function() {
+  const wrap = document.getElementById('stepperA');
+  const inputRow = document.getElementById('stepperInputRow');
+  const input = document.getElementById('stepperInput');
+  const dropdown = document.getElementById('stepperDropdown');
+  const resultEl = document.getElementById('stepperResult');
+
+  const steps = ['vendor', 'model', 'tech', 'config'];
+  const stepLabels = { vendor: 'Произв.', model: 'Модель', tech: 'Техн.', config: 'Конфиг.' };
+  const stepChipClass = { vendor: 'stepper-chip-vendor', model: 'stepper-chip-model', tech: 'stepper-chip-tech', config: 'stepper-chip-config' };
+  const placeholders = {
+    vendor: 'Начните вводить производителя…',
+    model: 'Выберите модель…',
+    tech: 'Технология (можно пропустить — Tab)…',
+    config: 'Выберите конфигурацию…',
+  };
+
+  let currentStep = 0;
+  let selected = {};
+  let highlightedIdx = -1;
+  let currentItems = [];
+
+  function updateStepIndicators() {
+    wrap.querySelectorAll('.stepper-step[data-step]').forEach(el => {
+      const s = el.dataset.step;
+      const idx = steps.indexOf(s);
+      el.classList.remove('active', 'done');
+      if (idx < currentStep) el.classList.add('done');
+      else if (idx === currentStep) el.classList.add('active');
+    });
+  }
+
+  function renderChips() {
+    inputRow.querySelectorAll('.stepper-chip').forEach(c => c.remove());
+    const chipOrder = ['vendor', 'model', 'tech', 'config'];
+    chipOrder.forEach(key => {
+      if (!selected[key]) return;
+      const chip = document.createElement('span');
+      chip.className = `stepper-chip ${stepChipClass[key]}`;
+      chip.innerHTML = `<span class="chip-label">${stepLabels[key]}</span>${escapeHtml(selected[key])}
+        <button class="chip-remove" data-key="${key}">×</button>`;
+      inputRow.insertBefore(chip, input);
+    });
+  }
+
+  inputRow.addEventListener('click', (e) => {
+    if (e.target.classList.contains('chip-remove')) {
+      const key = e.target.dataset.key;
+      const idx = steps.indexOf(key);
+      // Удаляем этот и все последующие шаги
+      for (let i = idx; i < steps.length; i++) delete selected[steps[i]];
+      currentStep = idx;
+      renderChips();
+      updateStepIndicators();
+      input.placeholder = placeholders[steps[currentStep]];
+      input.value = '';
+      input.focus();
+      showDropdown();
+      updateResult();
+      return;
+    }
+    input.focus();
+  });
+
+  function getItemsForStep(query) {
+    const q = (query || '').toLowerCase();
+    const step = steps[currentStep];
+
+    if (step === 'vendor') {
+      return DB.vendors
+        .filter(v => v.name.toLowerCase().includes(q))
+        .map(v => ({ label: v.name, hint: v.models.length + ' моделей' }));
+    }
+    if (step === 'model') {
+      const vendor = DB.vendors.find(v => v.name === selected.vendor);
+      if (!vendor) return [];
+      return vendor.models
+        .filter(m => m.name.toLowerCase().includes(q))
+        .map(m => ({ label: m.name, hint: m.tech }));
+    }
+    if (step === 'tech') {
+      const vendor = DB.vendors.find(v => v.name === selected.vendor);
+      if (!vendor) return [];
+      const model = vendor.models.find(m => m.name === selected.model);
+      if (!model) return [];
+      const techs = [model.tech]; // основная технология
+      return techs
+        .filter(t => t.toLowerCase().includes(q))
+        .map(t => ({ label: t, hint: 'авто' }));
+    }
+    if (step === 'config') {
+      const vendor = DB.vendors.find(v => v.name === selected.vendor);
+      if (!vendor) return [];
+      const model = vendor.models.find(m => m.name === selected.model);
+      if (!model) return [];
+      return model.configs
+        .filter(c => c.toLowerCase().includes(q))
+        .map(c => ({ label: c, hint: '' }));
+    }
+    return [];
+  }
+
+  function renderDropdown(query) {
+    currentItems = getItemsForStep(query);
+    highlightedIdx = currentItems.length > 0 ? 0 : -1;
+
+    const step = steps[currentStep];
+    const stepName = { vendor: 'Производитель', model: 'Модель', tech: 'Технология', config: 'Конфигурация' }[step];
+
+    let html = `<div class="stepper-dropdown-header">${stepName} — шаг ${currentStep + 1} из 4</div>`;
+    
+    currentItems.forEach((item, i) => {
+      html += `<div class="stepper-dropdown-item ${i === 0 ? 'highlighted' : ''}" data-idx="${i}">
+        <span>${highlightMatch(item.label, query)}</span>
+        ${item.hint ? `<span class="item-hint">${escapeHtml(item.hint)}</span>` : ''}
+      </div>`;
+    });
+
+    if (currentItems.length === 0) {
+      html += `<div style="padding:16px 14px; color:var(--text-dim); font-size:13px;">Нет совпадений</div>`;
+    }
+
+    if (step === 'tech') {
+      html += `<div class="stepper-shortcut-hint"><span><kbd>Tab</kbd> Пропустить технологию</span><span><kbd>↑↓</kbd> Навигация</span><span><kbd>Enter</kbd> Выбрать</span></div>`;
+    } else {
+      html += `<div class="stepper-shortcut-hint"><span><kbd>↑↓</kbd> Навигация</span><span><kbd>Enter</kbd> Выбрать</span><span><kbd>Backspace</kbd> Назад</span></div>`;
+    }
+
+    dropdown.innerHTML = html;
+    dropdown.classList.add('open');
+  }
+
+  function selectItem(label) {
+    const step = steps[currentStep];
+    selected[step] = label;
+
+    // Авто-заполнение технологии, если выбрана модель
+    if (step === 'model') {
+      const vendor = DB.vendors.find(v => v.name === selected.vendor);
+      const model = vendor?.models.find(m => m.name === selected.model);
+      if (model) {
+        selected.tech = model.tech;
+        currentStep = 3; // Прыгаем сразу к конфигурации
+      }
+    } else {
+      currentStep = Math.min(currentStep + 1, steps.length - 1);
+    }
+
+    renderChips();
+    updateStepIndicators();
+    input.value = '';
+
+    if (currentStep < steps.length && !selected[steps[currentStep]]) {
+      input.placeholder = placeholders[steps[currentStep]];
+      showDropdown();
+    } else {
+      dropdown.classList.remove('open');
+    }
+
+    updateResult();
+    input.focus();
+  }
+
+  function updateResult() {
+    if (selected.config) {
+      resultEl.innerHTML = `Выбрана конфигурация: <span class="result-value">${escapeHtml(selected.config)}</span>`;
+    } else {
+      resultEl.innerHTML = `<span style="color:var(--text-dim)">Конфигурация не выбрана</span>`;
+    }
+  }
+
+  function showDropdown() {
+    renderDropdown(input.value);
+  }
+
+  input.addEventListener('input', () => renderDropdown(input.value));
+  input.addEventListener('focus', () => {
+    if (currentStep < steps.length && !selected[steps[steps.length - 1]]) {
+      showDropdown();
+    }
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightedIdx = Math.min(highlightedIdx + 1, currentItems.length - 1);
+      updateHighlight();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightedIdx = Math.max(highlightedIdx - 1, 0);
+      updateHighlight();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlightedIdx >= 0 && currentItems[highlightedIdx]) {
+        selectItem(currentItems[highlightedIdx].label);
+      }
+    } else if (e.key === 'Tab' && steps[currentStep] === 'tech') {
+      e.preventDefault();
+      // Пропустить технологию — авто-заполнить из модели
+      const vendor = DB.vendors.find(v => v.name === selected.vendor);
+      const model = vendor?.models.find(m => m.name === selected.model);
+      if (model) selected.tech = model.tech;
+      currentStep = 3;
+      renderChips();
+      updateStepIndicators();
+      input.value = '';
+      input.placeholder = placeholders.config;
+      showDropdown();
+    } else if (e.key === 'Backspace' && input.value === '' && currentStep > 0) {
+      // Удалить предыдущий шаг
+      const prevStep = steps[currentStep - 1];
+      for (let i = currentStep - 1; i < steps.length; i++) delete selected[steps[i]];
+      currentStep = currentStep - 1;
+      renderChips();
+      updateStepIndicators();
+      input.placeholder = placeholders[steps[currentStep]];
+      showDropdown();
+      updateResult();
+    }
+  });
+
+  function updateHighlight() {
+    dropdown.querySelectorAll('.stepper-dropdown-item').forEach((el, i) => {
+      el.classList.toggle('highlighted', i === highlightedIdx);
+      if (i === highlightedIdx) el.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  dropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.stepper-dropdown-item');
+    if (item) {
+      const idx = parseInt(item.dataset.idx);
+      if (currentItems[idx]) selectItem(currentItems[idx].label);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) dropdown.classList.remove('open');
+  });
+})();
+
+
+// ==================================================================
+// ВАРИАНТ B: FACETED TOKEN SEARCH
+// ==================================================================
+(function() {
+  const wrap = document.getElementById('facetedB');
+  const inputRow = document.getElementById('facetedInputRow');
+  const input = document.getElementById('facetedInput');
+  const dropdown = document.getElementById('facetedDropdown');
+  const resultEl = document.getElementById('facetedResult');
+
+  let tokens = {}; // { vendor: '...', model: '...', tech: '...' }
+  let highlightedIdx = -1;
+  let currentItems = [];
+
+  function renderTokens() {
+    inputRow.querySelectorAll('.faceted-token').forEach(t => t.remove());
+    const order = ['vendor', 'model', 'tech'];
+    const labels = { vendor: 'Произв', model: 'Модель', tech: 'Техн' };
+    const classes = { vendor: 'faceted-token-vendor', model: 'faceted-token-model', tech: 'faceted-token-tech' };
+
+    order.forEach(key => {
+      if (!tokens[key]) return;
+      const token = document.createElement('span');
+      token.className = `faceted-token ${classes[key]}`;
+      token.innerHTML = `<span class="faceted-token-key">${labels[key]}:</span>
+        <span class="faceted-token-value">${escapeHtml(tokens[key])}</span>
+        <button class="faceted-token-remove" data-key="${key}">×</button>`;
+      inputRow.insertBefore(token, input);
+    });
+  }
+
+  inputRow.addEventListener('click', (e) => {
+    if (e.target.classList.contains('faceted-token-remove')) {
+      const key = e.target.dataset.key;
+      delete tokens[key];
+      // Удаляем зависимые
+      if (key === 'vendor') { delete tokens.model; delete tokens.tech; }
+      if (key === 'model') { delete tokens.tech; }
+      renderTokens();
+      input.focus();
+      showDropdown();
+      updateResult();
+      return;
+    }
+    input.focus();
+  });
+
+  function getFilteredItems(query) {
+    const q = (query || '').toLowerCase();
+    const items = [];
+
+    // Определяем, какие категории ещё не выбраны
+    if (!tokens.vendor) {
+      DB.vendors.forEach(v => {
+        if (v.name.toLowerCase().includes(q)) {
+          items.push({ type: 'vendor', label: v.name, path: '', count: v.models.length + ' моделей' });
+        }
+      });
+    }
+
+    if (!tokens.model) {
+      const vendors = tokens.vendor ? DB.vendors.filter(v => v.name === tokens.vendor) : DB.vendors;
+      vendors.forEach(v => {
+        v.models.forEach(m => {
+          if (m.name.toLowerCase().includes(q) || v.name.toLowerCase().includes(q)) {
+            items.push({ type: 'model', label: m.name, path: v.name, count: m.tech });
+          }
+        });
+      });
+    }
+
+    // Конфигурации — всегда показываем
+    const vendors = tokens.vendor ? DB.vendors.filter(v => v.name === tokens.vendor) : DB.vendors;
+    vendors.forEach(v => {
+      const models = tokens.model ? v.models.filter(m => m.name === tokens.model) : v.models;
+      models.forEach(m => {
+        m.configs.forEach(c => {
+          if (c.toLowerCase().includes(q) || m.name.toLowerCase().includes(q) || v.name.toLowerCase().includes(q)) {
+            items.push({ type: 'config', label: c, path: `${v.name} → ${m.name}`, count: m.tech });
+          }
+        });
+      });
+    });
+
+    return items;
+  }
+
+  function renderDropdown(query) {
+    currentItems = getFilteredItems(query);
+    highlightedIdx = currentItems.length > 0 ? 0 : -1;
+
+    // Группируем по типу
+    const groups = {};
+    const groupNames = { vendor: 'Производители', model: 'Модели', config: 'Конфигурации' };
+    const prefixClasses = { vendor: 'faceted-item-prefix-vendor', model: 'faceted-item-prefix-model', config: 'faceted-item-prefix-config' };
+
+    currentItems.forEach(item => {
+      if (!groups[item.type]) groups[item.type] = [];
+      groups[item.type].push(item);
+    });
+
+    let html = '';
+    let globalIdx = 0;
+
+    ['vendor', 'model', 'config'].forEach(type => {
+      if (!groups[type]) return;
+      html += `<div class="faceted-group">
+        <div class="faceted-group-title">${groupNames[type]}</div>`;
+      
+      groups[type].slice(0, type === 'config' ? 8 : 5).forEach(item => {
+        html += `<div class="faceted-item ${globalIdx === 0 ? 'highlighted' : ''}" data-idx="${globalIdx}" data-type="${item.type}">
+          <span class="faceted-item-prefix ${prefixClasses[type]}">${type === 'vendor' ? 'V' : type === 'model' ? 'M' : 'C'}</span>
+          <span>${highlightMatch(item.label, query)}</span>
+          ${item.path ? `<span class="faceted-item-path">${escapeHtml(item.path)}</span>` : ''}
+        </div>`;
+        globalIdx++;
+      });
+
+      html += `</div>`;
+    });
+
+    if (currentItems.length === 0) {
+      html = `<div style="padding:20px 14px; color:var(--text-dim); font-size:13px; text-align:center;">Нет совпадений</div>`;
+    }
+
+    html += `<div class="faceted-kbd-hint">
+      <span><kbd>↑↓</kbd> Навигация</span>
+      <div class="hint-sep"></div>
+      <span><kbd>Enter</kbd> Выбрать</span>
+      <div class="hint-sep"></div>
+      <span><kbd>Backspace</kbd> Удалить токен</span>
+    </div>`;
+
+    dropdown.innerHTML = html;
+    dropdown.classList.add('open');
+  }
+
+  function selectFacetedItem(idx) {
+    // Найдём реальный элемент из currentItems по видимому индексу
+    let visibleIdx = 0;
+    let targetItem = null;
+    const groups = {};
+    currentItems.forEach(item => {
+      if (!groups[item.type]) groups[item.type] = [];
+      groups[item.type].push(item);
+    });
+
+    let found = false;
+    ['vendor', 'model', 'config'].forEach(type => {
+      if (found || !groups[type]) return;
+      const limit = type === 'config' ? 8 : 5;
+      groups[type].slice(0, limit).forEach(item => {
+        if (found) return;
+        if (visibleIdx === idx) { targetItem = item; found = true; }
+        visibleIdx++;
+      });
+    });
+
+    if (!targetItem) return;
+
+    if (targetItem.type === 'vendor') {
+      tokens.vendor = targetItem.label;
+      delete tokens.model;
+      delete tokens.tech;
+      renderTokens();
+      input.value = '';
+      input.placeholder = 'Модель или конфигурация…';
+      showDropdown();
+    } else if (targetItem.type === 'model') {
+      // Авто-заполнить вендора если не выбран
+      if (!tokens.vendor) {
+        const v = DB.vendors.find(v => v.models.some(m => m.name === targetItem.label));
+        if (v) tokens.vendor = v.name;
+      }
+      tokens.model = targetItem.label;
+      // Авто-заполнить технологию
+      const vendor = DB.vendors.find(v => v.name === tokens.vendor);
+      const model = vendor?.models.find(m => m.name === tokens.model);
+      if (model) tokens.tech = model.tech;
+      renderTokens();
+      input.value = '';
+      input.placeholder = 'Конфигурация…';
+      showDropdown();
+    } else if (targetItem.type === 'config') {
+      // Выбрана конфигурация — заполняем всё
+      const entry = flatConfigs.find(f => f.config === targetItem.label);
+      if (entry) {
+        tokens.vendor = entry.vendor;
+        tokens.model = entry.model;
+        tokens.tech = entry.tech;
+      }
+      renderTokens();
+      input.value = '';
+      dropdown.classList.remove('open');
+      resultEl.innerHTML = `Выбрана конфигурация: <span class="result-value">${escapeHtml(targetItem.label)}</span>`;
+      return;
+    }
+
+    updateResult();
+    input.focus();
+  }
+
+  function updateResult() {
+    resultEl.innerHTML = `<span style="color:var(--text-dim)">Конфигурация не выбрана</span>`;
+  }
+
+  function showDropdown() {
+    renderDropdown(input.value);
+  }
+
+  input.addEventListener('input', () => renderDropdown(input.value));
+  input.addEventListener('focus', showDropdown);
+
+  input.addEventListener('keydown', (e) => {
+    const maxIdx = dropdown.querySelectorAll('.faceted-item').length - 1;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightedIdx = Math.min(highlightedIdx + 1, maxIdx);
+      updateHighlight();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightedIdx = Math.max(highlightedIdx - 1, 0);
+      updateHighlight();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlightedIdx >= 0) selectFacetedItem(highlightedIdx);
+    } else if (e.key === 'Backspace' && input.value === '') {
+      // Удалить последний токен
+      const order = ['tech', 'model', 'vendor'];
+      for (const key of order) {
+        if (tokens[key]) {
+          delete tokens[key];
+          if (key === 'vendor') { delete tokens.model; delete tokens.tech; }
+          if (key === 'model') { delete tokens.tech; }
+          break;
+        }
+      }
+      renderTokens();
+      showDropdown();
+      updateResult();
+    }
+  });
+
+  function updateHighlight() {
+    dropdown.querySelectorAll('.faceted-item').forEach((el, i) => {
+      el.classList.toggle('highlighted', i === highlightedIdx);
+      if (i === highlightedIdx) el.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  dropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.faceted-item');
+    if (item) selectFacetedItem(parseInt(item.dataset.idx));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) dropdown.classList.remove('open');
+  });
+})();
+
+
+// ==================================================================
+// ВАРИАНТ C: COMMAND PALETTE / SMART SEARCH
+// ==================================================================
+(function() {
+  const wrap = document.getElementById('paletteC');
+  const input = document.getElementById('paletteInput');
+  const dropdown = document.getElementById('paletteDropdown');
+  const breadcrumb = document.getElementById('paletteBreadcrumb');
+  const resultEl = document.getElementById('paletteResult');
+
+  let selectedConfig = null;
+  let highlightedIdx = -1;
+  let currentItems = [];
+
+  function search(query) {
+    const q = (query || '').toLowerCase().trim();
+    if (!q) {
+      // Показать все конфигурации, сгруппированные по вендору
+      return flatConfigs.slice();
+    }
+
+    // Разбиваем запрос на слова для мультитокенного поиска
+    const words = q.split(/\s+/);
+    
+    return flatConfigs.filter(item => {
+      return words.every(w => item.searchText.includes(w));
+    }).sort((a, b) => {
+      // Приоритет: точное совпадение в config > model > vendor
+      const aConfigMatch = a.config.toLowerCase().includes(q) ? 2 : 0;
+      const bConfigMatch = b.config.toLowerCase().includes(q) ? 2 : 0;
+      const aModelMatch = a.model.toLowerCase().includes(q) ? 1 : 0;
+      const bModelMatch = b.model.toLowerCase().includes(q) ? 1 : 0;
+      return (bConfigMatch + bModelMatch) - (aConfigMatch + aModelMatch);
+    });
+  }
+
+  function renderDropdown(query) {
+    currentItems = search(query);
+    highlightedIdx = currentItems.length > 0 ? 0 : -1;
+
+    // Группируем по вендору
+    const groups = {};
+    currentItems.forEach(item => {
+      if (!groups[item.vendor]) groups[item.vendor] = [];
+      groups[item.vendor].push(item);
+    });
+
+    let html = '';
+    let globalIdx = 0;
+    const q = (query || '').toLowerCase().trim();
+
+    Object.keys(groups).forEach(vendor => {
+      html += `<div class="palette-section">
+        <div class="palette-section-title">${escapeHtml(vendor)}</div>`;
+
+      groups[vendor].slice(0, 6).forEach(item => {
+        html += `<div class="palette-item ${globalIdx === 0 ? 'highlighted' : ''}" data-idx="${globalIdx}">
+          <div class="palette-item-icon palette-item-icon-config">C</div>
+          <div class="palette-item-content">
+            <div class="palette-item-name">${highlightMatch(item.config, q)}</div>
+            <div class="palette-item-meta">${highlightMatch(item.model, q)}</div>
+          </div>
+          <span class="palette-item-tag ${techTagClass(item.tech)}">${item.tech}</span>
+        </div>`;
+        globalIdx++;
+      });
+
+      html += `</div>`;
+    });
+
+    if (currentItems.length === 0) {
+      html = `<div style="padding:24px 16px; color:var(--text-dim); font-size:13px; text-align:center;">
+        Нет совпадений по запросу «${escapeHtml(query)}»
+      </div>`;
+    }
+
+    html += `<div class="palette-footer">
+      <span><kbd>↑↓</kbd> Навигация</span>
+      <span><kbd>Enter</kbd> Выбрать</span>
+      <span><kbd>Esc</kbd> Закрыть</span>
+      <span style="margin-left:auto; opacity:0.6">${currentItems.length} конфигурац.</span>
+    </div>`;
+
+    dropdown.innerHTML = html;
+    dropdown.classList.add('open');
+  }
+
+  function selectPaletteItem(idx) {
+    // Вычисляем видимый индекс
+    let visibleIdx = 0;
+    let target = null;
+    const groups = {};
+    currentItems.forEach(item => {
+      if (!groups[item.vendor]) groups[item.vendor] = [];
+      groups[item.vendor].push(item);
+    });
+
+    let found = false;
+    Object.keys(groups).forEach(vendor => {
+      if (found) return;
+      groups[vendor].slice(0, 6).forEach(item => {
+        if (found) return;
+        if (visibleIdx === idx) { target = item; found = true; }
+        visibleIdx++;
+      });
+    });
+
+    if (!target) return;
+
+    selectedConfig = target;
+    input.value = '';
+    dropdown.classList.remove('open');
+
+    // Отобразить breadcrumb
+    breadcrumb.innerHTML = `
+      <div class="palette-breadcrumb">
+        <span class="palette-breadcrumb-item palette-breadcrumb-item-vendor">${escapeHtml(target.vendor)}</span>
+        <span class="palette-breadcrumb-sep">›</span>
+        <span class="palette-breadcrumb-item palette-breadcrumb-item-model">${escapeHtml(target.model)}</span>
+        <span class="palette-breadcrumb-sep">›</span>
+        <span class="palette-breadcrumb-item palette-breadcrumb-item-tech">${target.tech}</span>
+        <span class="palette-breadcrumb-sep">›</span>
+        <span class="palette-breadcrumb-item palette-breadcrumb-item-config">${escapeHtml(target.config)}</span>
+      </div>
+      <button class="palette-breadcrumb-clear" id="paletteClear">Очистить</button>
+    `;
+
+    document.getElementById('paletteClear').addEventListener('click', () => {
+      selectedConfig = null;
+      breadcrumb.innerHTML = '';
+      resultEl.innerHTML = `<span style="color:var(--text-dim)">Конфигурация не выбрана</span>`;
+      input.focus();
+    });
+
+    resultEl.innerHTML = `Выбрана конфигурация: <span class="result-value">${escapeHtml(target.config)}</span>`;
+  }
+
+  input.addEventListener('input', () => renderDropdown(input.value));
+  input.addEventListener('focus', () => renderDropdown(input.value));
+
+  input.addEventListener('keydown', (e) => {
+    const maxIdx = dropdown.querySelectorAll('.palette-item').length - 1;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightedIdx = Math.min(highlightedIdx + 1, maxIdx);
+      updateHighlight();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightedIdx = Math.max(highlightedIdx - 1, 0);
+      updateHighlight();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlightedIdx >= 0) selectPaletteItem(highlightedIdx);
+    } else if (e.key === 'Escape') {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  function updateHighlight() {
+    dropdown.querySelectorAll('.palette-item').forEach((el, i) => {
+      el.classList.toggle('highlighted', i === highlightedIdx);
+      if (i === highlightedIdx) el.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  dropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.palette-item');
+    if (item) selectPaletteItem(parseInt(item.dataset.idx));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) dropdown.classList.remove('open');
+  });
+})();
+
+</script>
+</body>
+</html>
